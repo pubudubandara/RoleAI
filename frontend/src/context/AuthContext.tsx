@@ -13,7 +13,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (username: string, email: string, password: string) => Promise<void>;
+  signup: (fullName: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -94,9 +94,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signup = async (username: string, email: string, password: string) => {
+  const signup = async (fullName: string, email: string, password: string) => {
     try {
-      const userData = await signupUser(username, email, password);
+      const userData = await signupUser(fullName, email, password);
       setUser(userData);
       toast.success('Account created successfully! Please check your email for verification.');
     } catch (error) {

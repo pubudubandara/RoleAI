@@ -10,7 +10,7 @@ const ChatPage = () => {
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex flex-1">
-        <div className="w-1/4 min-w-[300px] p-6 bg-gray-100 dark:bg-gray-800 border-r border-gray-300 dark:border-gray-700">
+        <div className="w-1/4 min-w-[300px] p-6 bg-gray-800 border-r border-gray-700">
           <RoleSelector selectedRole={selectedRole} onRoleSelect={setSelectedRole} />
           <ModelSelector selectedModel={selectedModel} onModelSelect={setSelectedModel} />
         </div>

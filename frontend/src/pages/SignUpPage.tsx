@@ -20,10 +20,10 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="w-full h-full flex justify-center items-center bg-gray-50 dark:bg-gray-900 p-6">
+    <div className="w-full h-full flex justify-center items-center bg-gray-900 p-6">
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-200 dark:bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md"
+        className="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
         <input
@@ -31,7 +31,7 @@ const SignupPage = () => {
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full mb-4 p-2 rounded bg-white dark:bg-gray-700 text-black dark:text-white"
+          className="w-full mb-4 p-2 rounded bg-gray-700 text-white"
           required
         />
         <input
@@ -39,7 +39,7 @@ const SignupPage = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 p-2 rounded bg-white dark:bg-gray-700 text-black dark:text-white"
+          className="w-full mb-4 p-2 rounded bg-gray-700 text-white"
           required
         />
         <input
@@ -47,7 +47,7 @@ const SignupPage = () => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 p-2 rounded bg-white dark:bg-gray-700 text-black dark:text-white"
+          className="w-full mb-4 p-2 rounded bg-gray-700 text-white"
           required
         />
         <button
@@ -56,7 +56,7 @@ const SignupPage = () => {
         >
           Signup
         </button>
-        <p className="text-center mt-4 text-gray-600 dark:text-gray-400">
+        <p className="text-center mt-4 text-gray-400">
           Already have an account?{" "}
           <Link to="/login" className="text-blue-600 hover:text-blue-700">
             Login

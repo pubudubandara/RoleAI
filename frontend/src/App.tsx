@@ -10,6 +10,9 @@ import SignUpPage from './pages/SignUpPage';
 import ChatPage from './pages/ChatPage';
 import VerifySuccessPage from './pages/VerifySuccessPage';
 import VerifyErrorPage from './pages/VerifyErrorPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import VerifyResetCodePage from './pages/VerifyResetCodePage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/verify-reset-code" element={<VerifyResetCodePage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/verify-success" element={<VerifySuccessPage />} />
                 <Route path="/verify-error" element={<VerifyErrorPage />} />
                 <Route path="/chat" element={

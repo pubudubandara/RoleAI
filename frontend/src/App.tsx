@@ -8,6 +8,8 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import ChatPage from './pages/ChatPage';
+import VerifySuccessPage from './pages/VerifySuccessPage';
+import VerifyErrorPage from './pages/VerifyErrorPage';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/verify-success" element={<VerifySuccessPage />} />
+                <Route path="/verify-error" element={<VerifyErrorPage />} />
                 <Route path="/chat" element={
                   <ProtectedRoute>
                     <ChatPage />

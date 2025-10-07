@@ -53,12 +53,9 @@ public class AuthController {
             // Proceed with registration
             User newUser = userService.register(request);
 
-            // Generate JWT token immediately (skip email verification for development)
-            String jwt = jwtUtil.generateToken(newUser);
-
+            // Don't generate token on signup - user needs to verify email first
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "User registered successfully");
-            response.put("token", jwt);
+            response.put("message", "User registered successfully. Please check your email to verify your account.");
             response.put("user", Map.of(
                 "id", newUser.getId(),
                 "email", newUser.getEmail(),
@@ -83,9 +80,15 @@ public class AuthController {
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         try {
             userService.verifyUser(token);
-            return ResponseEntity.ok(Map.of("message", "Email verified successfully!"));
+            // Redirect to frontend verification success page
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "http://localhost:5173/verify-success")
+                    .build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid or expired verification token."));
+            // Redirect to frontend verification error page
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "http://localhost:5173/verify-error")
+                    .build();
         }
     }
 

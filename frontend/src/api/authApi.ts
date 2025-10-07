@@ -25,6 +25,11 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface SignupResponse {
+  message: string;
+  user: User;
+}
+
 export const loginUser = async (email: string, password: string): Promise<User> => {
   try {
     const response = await axios.post<AuthResponse>(`${API_BASE_URL}/login`, { email, password });
@@ -50,20 +55,13 @@ export const loginUser = async (email: string, password: string): Promise<User> 
 
 export const signupUser = async (fullName: string, email: string, password: string): Promise<User> => {
   try {
-    const response = await axios.post<AuthResponse>(`${API_BASE_URL}/signup`, { fullName, email, password });
+    const response = await axios.post<SignupResponse>(`${API_BASE_URL}/signup`, { fullName, email, password });
     console.log('Signup response:', response.data); // Debug log
-    const { token, user } = response.data;
+    const { user } = response.data;
     
-    // Ensure token exists before storing
-    if (!token) {
-      throw new Error('No token received from server');
-    }
+    // Don't store token for signup - user needs to verify email first
+    // Token will be stored only after successful login
     
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    
-    console.log('Token stored:', localStorage.getItem('token')); // Debug log
     return user;
   } catch (error) {
     console.error('Signup error:', error);

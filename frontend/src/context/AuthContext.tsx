@@ -103,8 +103,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signup = async (fullName: string, email: string, password: string) => {
     try {
-      const userData = await signupUser(fullName, email, password);
-      setUser(userData);
+      await signupUser(fullName, email, password);
+      // Don't set user state - they need to verify email first
       toast.success('Account created successfully! Please check your email for verification.');
     } catch (error) {
       toast.error('Signup failed. Please try again.');

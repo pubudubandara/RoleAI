@@ -54,7 +54,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
+          <div className="text-center text-gray-400 mt-8">
             Select a role and model, then start chatting!
           </div>
         ) : (
@@ -64,7 +64,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
                 className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                   message.sender === 'user'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
+                    : 'bg-gray-700 text-white'
                 }`}
               >
                 <p className="text-sm">{message.text}</p>
@@ -76,20 +76,20 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
           ))
         )}
         {isLoading && (
-          <div className="text-center text-gray-500 dark:text-gray-400">
+          <div className="text-center text-gray-400">
             AI is thinking...
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 border-t border-gray-300 dark:border-gray-700">
+      <div className="p-4 border-t border-gray-700">
         <div className="flex space-x-2">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
-            className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+            className="flex-1 p-2 border border-gray-600 rounded-lg bg-gray-700 text-white resize-none"
             rows={3}
             disabled={!selectedRole || !selectedModel}
           />

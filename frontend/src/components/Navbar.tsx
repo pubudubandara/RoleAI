@@ -1,15 +1,13 @@
 import { Link } from "react-router-dom";
-import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="flex justify-between items-center px-6 py-4 bg-gray-200 dark:bg-gray-800 rounded-b-2xl shadow">
+    <nav className="flex justify-between items-center px-6 py-4 bg-gray-800 rounded-b-2xl shadow">
       <Link to="/" className="text-xl font-semibold">🤖 RoleAI</Link>
       <div className="flex gap-4 items-center">
-        <ThemeToggle />
         {user ? (
           <>
             <span className="hidden sm:inline">{user.username}</span>

@@ -15,7 +15,7 @@ export interface SignupRequest {
 
 export interface User {
   id: number;
-  username: string;
+  fullName: string;
   email: string;
 }
 
@@ -37,9 +37,9 @@ export const loginUser = async (email: string, password: string): Promise<User> 
   }
 };
 
-export const signupUser = async (username: string, email: string, password: string): Promise<User> => {
+export const signupUser = async (fullName: string, email: string, password: string): Promise<User> => {
   try {
-    const response = await axios.post<AuthResponse>(`${API_BASE_URL}/signup`, { fullName: username, email, password });
+    const response = await axios.post<AuthResponse>(`${API_BASE_URL}/signup`, { fullName, email, password });
     const { token, user } = response.data;
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));

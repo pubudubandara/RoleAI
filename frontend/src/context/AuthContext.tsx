@@ -6,7 +6,7 @@ import { loginUser, signupUser } from '../api/authApi';
 
 interface User {
   id: number;
-  username: string;
+  fullName: string;
   email: string;
 }
 
@@ -28,18 +28,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Add axios interceptor to handle token expiration
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Validate token and set user
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // For simplicity, assume token is valid; in real app, validate with backend
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // Token is invalid or expired - clear auth data and redirect
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          delete axios.defaults.headers.common['Authorization'];
+          setUser(null);
+          toast.error('Session expired. Please login again.');
+          // Redirect to home page
+          window.location.replace('/');
+        }
+        return Promise.reject(error);
       }
-    }
-    setIsLoading(false);
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+
+      if (token && storedUser) {
+        try {
+          // Set the authorization header
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+          // Parse and validate stored user data
+          const userData = JSON.parse(storedUser);
+          if (userData && userData.id && userData.email) {
+            setUser(userData);
+          } else {
+            throw new Error('Invalid user data');
+          }
+        } catch (error) {
+          // Token or user data is invalid, clear stored data
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          delete axios.defaults.headers.common['Authorization'];
+          console.log('Stored auth data is invalid, cleared');
+        }
+      }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -69,6 +110,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
+    // Redirect to home page
+    window.location.replace('/');
   };
 
   const value: AuthContextType = {

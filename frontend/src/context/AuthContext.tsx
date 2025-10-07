@@ -57,6 +57,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
 
+      console.log('Auth initialization - Token:', token ? 'exists' : 'not found');
+      console.log('Auth initialization - User:', storedUser ? 'exists' : 'not found');
+
       if (token && storedUser) {
         try {
           // Set the authorization header
@@ -64,13 +67,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           // Parse and validate stored user data
           const userData = JSON.parse(storedUser);
+          console.log('Parsed user data:', userData);
+          
           if (userData && userData.id && userData.email) {
             setUser(userData);
+            console.log('User authenticated from storage');
           } else {
             throw new Error('Invalid user data');
           }
         } catch (error) {
           // Token or user data is invalid, clear stored data
+          console.error('Auth initialization error:', error);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           delete axios.defaults.headers.common['Authorization'];

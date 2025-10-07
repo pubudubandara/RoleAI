@@ -51,9 +51,18 @@ public class AuthController {
             }
 
             // Proceed with registration
-            userService.register(request);
+            User newUser = userService.register(request);
 
-            return ResponseEntity.ok(Map.of("message", "User registered. Check email for verification."));
+            // Don't generate token on signup - user needs to verify email first
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "User registered successfully. Please check your email to verify your account.");
+            response.put("user", Map.of(
+                "id", newUser.getId(),
+                "email", newUser.getEmail(),
+                "fullName", newUser.getFullName()
+            ));
+
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
             // For custom validation errors thrown inside UserService
@@ -71,9 +80,15 @@ public class AuthController {
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         try {
             userService.verifyUser(token);
-            return ResponseEntity.ok(Map.of("message", "Email verified successfully!"));
+            // Redirect to frontend verification success page
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "http://localhost:5173/verify-success")
+                    .build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid or expired verification token."));
+            // Redirect to frontend verification error page
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header("Location", "http://localhost:5173/verify-error")
+                    .build();
         }
     }
 

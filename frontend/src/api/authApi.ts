@@ -8,44 +8,63 @@ export interface LoginRequest {
 }
 
 export interface SignupRequest {
-  username: string;
+  fullName: string;
   email: string;
   password: string;
 }
 
 export interface User {
   id: number;
-  username: string;
+  fullName: string;
   email: string;
 }
 
 export interface AuthResponse {
+  message: string;
   token: string;
+  user: User;
+}
+
+export interface SignupResponse {
+  message: string;
   user: User;
 }
 
 export const loginUser = async (email: string, password: string): Promise<User> => {
   try {
     const response = await axios.post<AuthResponse>(`${API_BASE_URL}/login`, { email, password });
+    console.log('Login response:', response.data); // Debug log
     const { token, user } = response.data;
+    
+    // Ensure token exists before storing
+    if (!token) {
+      throw new Error('No token received from server');
+    }
+    
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    console.log('Token stored:', localStorage.getItem('token')); // Debug log
     return user;
   } catch (error) {
+    console.error('Login error:', error);
     throw new Error('Login failed');
   }
 };
 
-export const signupUser = async (username: string, email: string, password: string): Promise<User> => {
+export const signupUser = async (fullName: string, email: string, password: string): Promise<User> => {
   try {
-    const response = await axios.post<AuthResponse>(`${API_BASE_URL}/register`, { username, email, password });
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const response = await axios.post<SignupResponse>(`${API_BASE_URL}/signup`, { fullName, email, password });
+    console.log('Signup response:', response.data); // Debug log
+    const { user } = response.data;
+    
+    // Don't store token for signup - user needs to verify email first
+    // Token will be stored only after successful login
+    
     return user;
   } catch (error) {
+    console.error('Signup error:', error);
     throw new Error('Signup failed');
   }
 };

@@ -10,7 +10,7 @@ const Navbar = () => {
       <div className="flex gap-4 items-center">
         {user ? (
           <>
-            <span className="hidden sm:inline">{user.username}</span>
+            <span className="hidden sm:inline">{user.fullName}</span>
             <button
               onClick={logout}
               className="px-3 py-1 rounded-lg bg-red-500 text-white hover:bg-red-600"

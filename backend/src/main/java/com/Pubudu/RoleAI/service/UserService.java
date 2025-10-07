@@ -16,7 +16,7 @@ public class UserService {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private EmailService emailService;
 
-    public void register(SignupRequest request) {
+    public User register(SignupRequest request) {
         // Validate input
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("Email is required");
@@ -41,31 +41,45 @@ public class UserService {
         user.setFullName(request.getFullName().trim());
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEnabled(false);
+        user.setEnabled(false); // Disabled until email verification
         user.setVerificationToken(UUID.randomUUID().toString());
 
         userRepository.save(user);
+        System.out.println("User registered: " + user.getEmail() + ", enabled: " + user.isEnabled() + ", token: " + user.getVerificationToken());
 
         String link = "http://localhost:8080/api/auth/verify?token=" + user.getVerificationToken();
+        System.out.println("Verification link: " + link);
         emailService.sendEmail(user.getEmail(), "Verify your email",
                 "Click here to verify: " + link);
+
+        return user;
     }
 
     public boolean verifyUser(String token) {
+        System.out.println("Verifying user with token: " + token);
+        
         if (token == null || token.trim().isEmpty()) {
+            System.out.println("Verification failed: Token is null or empty");
             throw new IllegalArgumentException("Verification token is required");
         }
 
         User user = userRepository.findByVerificationToken(token.trim())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired verification token"));
+                .orElseThrow(() -> {
+                    System.out.println("Verification failed: Token not found in database: " + token.trim());
+                    return new IllegalArgumentException("Invalid or expired verification token");
+                });
+
+        System.out.println("User found: " + user.getEmail() + ", enabled: " + user.isEnabled());
 
         if (user.isEnabled()) {
+            System.out.println("Verification failed: User is already verified");
             throw new IllegalArgumentException("User is already verified");
         }
 
         user.setEnabled(true);
         user.setVerificationToken(null);
         userRepository.save(user);
+        System.out.println("User successfully verified: " + user.getEmail());
         return true;
     }
 }

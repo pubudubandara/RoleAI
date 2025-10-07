@@ -12,10 +12,10 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:mySecretKey123456789012345678901234567890}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration:86400000}")
+    @Value("${jwt.expiration}")
     private long jwtExpirationMs; // 24 hours
 
     private SecretKey getSigningKey() {

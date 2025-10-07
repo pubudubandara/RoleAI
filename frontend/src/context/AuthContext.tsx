@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { loginUser, signupUser } from '../api/authApi';
 
 interface User {
@@ -42,13 +43,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const userData = await loginUser(email, password);
-    setUser(userData);
+    try {
+      const userData = await loginUser(email, password);
+      setUser(userData);
+      toast.success('Login successful! Welcome back.');
+    } catch (error) {
+      toast.error('Login failed. Please check your credentials.');
+      throw error;
+    }
   };
 
   const signup = async (username: string, email: string, password: string) => {
-    const userData = await signupUser(username, email, password);
-    setUser(userData);
+    try {
+      const userData = await signupUser(username, email, password);
+      setUser(userData);
+      toast.success('Account created successfully! Please check your email for verification.');
+    } catch (error) {
+      toast.error('Signup failed. Please try again.');
+      throw error;
+    }
   };
 
   const logout = () => {

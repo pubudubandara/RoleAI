@@ -51,9 +51,21 @@ public class AuthController {
             }
 
             // Proceed with registration
-            userService.register(request);
+            User newUser = userService.register(request);
 
-            return ResponseEntity.ok(Map.of("message", "User registered. Check email for verification."));
+            // Generate JWT token immediately (skip email verification for development)
+            String jwt = jwtUtil.generateToken(newUser);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "User registered successfully");
+            response.put("token", jwt);
+            response.put("user", Map.of(
+                "id", newUser.getId(),
+                "email", newUser.getEmail(),
+                "fullName", newUser.getFullName()
+            ));
+
+            return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
             // For custom validation errors thrown inside UserService

@@ -16,7 +16,7 @@ public class UserService {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private EmailService emailService;
 
-    public void register(SignupRequest request) {
+    public User register(SignupRequest request) {
         // Validate input
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
             throw new IllegalArgumentException("Email is required");
@@ -41,7 +41,7 @@ public class UserService {
         user.setFullName(request.getFullName().trim());
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEnabled(false);
+        user.setEnabled(true); // Enable immediately for development
         user.setVerificationToken(UUID.randomUUID().toString());
 
         userRepository.save(user);
@@ -49,6 +49,8 @@ public class UserService {
         String link = "http://localhost:8080/api/auth/verify?token=" + user.getVerificationToken();
         emailService.sendEmail(user.getEmail(), "Verify your email",
                 "Click here to verify: " + link);
+
+        return user;
     }
 
     public boolean verifyUser(String token) {

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const SignupPage = () => {
-  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { signup } = useAuth();
@@ -12,8 +12,8 @@ const SignupPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await signup(username, email, password);
-      navigate("/chat");
+      await signup(fullName, email, password);
+      navigate("/login");
     } catch (error) {
       console.error("Signup failed:", error);
     }
@@ -28,9 +28,9 @@ const SignupPage = () => {
         <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Full Name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
           className="w-full mb-4 p-2 rounded bg-gray-700 text-white"
           required
         />

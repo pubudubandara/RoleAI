@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import toast from 'react-hot-toast';
 
 const SignupPage = () => {
   const [fullName, setFullName] = useState("");
@@ -13,9 +14,11 @@ const SignupPage = () => {
     e.preventDefault();
     try {
       await signup(fullName, email, password);
+      toast.success('Account created successfully! Please check your email for verification.');
       navigate("/login");
     } catch (error) {
       console.error("Signup failed:", error);
+      toast.error('Signup failed. Please try again.');
     }
   };
 

@@ -7,7 +7,6 @@ interface Model {
 const models: Model[] = [
   { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: 'Fast and efficient' },
   { id: 'gpt-4', name: 'GPT-4', description: 'More capable and accurate' },
-  { id: 'claude-3', name: 'Claude 3', description: 'Balanced performance' },
 ];
 
 interface ModelSelectorProps {

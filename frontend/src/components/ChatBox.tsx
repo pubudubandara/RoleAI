@@ -82,7 +82,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 border-t border-gray-700">
+      <div className="p-4 border-t border-gray-700 ">
         <div className="flex space-x-2">
           <textarea
             value={input}

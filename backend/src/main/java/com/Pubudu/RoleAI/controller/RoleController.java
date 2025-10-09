@@ -65,21 +65,6 @@ public class RoleController {
         }
     }
 
-    // Test endpoint to create role with hardcoded user (for testing only)
-    @PostMapping("/test")
-    public ResponseEntity<?> createTestRole(@RequestBody RoleDTO roleDTO) {
-        try {
-            logger.info("Creating test role: {}", roleDTO.getName());
-            RoleDTO createdRole = roleService.createTestRole(roleDTO);
-            logger.info("Successfully created test role with ID: {}", createdRole.getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdRole);
-        } catch (Exception e) {
-            logger.error("Error creating test role: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to create test role: " + e.getMessage()));
-        }
-    }
-
     // Update an existing role
     @PutMapping("/{id}")
     public ResponseEntity<RoleDTO> updateRole(@PathVariable Long id, @RequestBody RoleDTO roleDTO) {
@@ -128,17 +113,5 @@ public class RoleController {
         }
     }
 
-    // Seed sample roles for the authenticated user and return all roles
-    @PostMapping("/seed")
-    public ResponseEntity<?> seedSampleRoles() {
-        try {
-            logger.info("Seeding sample roles for current user");
-            List<RoleDTO> roles = roleService.seedSampleRoles();
-            return ResponseEntity.ok(roles);
-        } catch (Exception e) {
-            logger.error("Error seeding roles: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to seed roles: " + e.getMessage()));
-        }
-    }
+
 }

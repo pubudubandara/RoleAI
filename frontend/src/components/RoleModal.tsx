@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 
 interface Role {
-  id?: string;
+  id?: number;
   name: string;
   description: string;
+  userId?: number;
 }
 
 interface RoleModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (role: Role) => void;
-  onDelete?: (roleId: string) => void;
+  onDelete?: (roleId: number) => void;
   role?: Role | null;
   mode: 'add' | 'edit';
 }

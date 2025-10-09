@@ -1,27 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import RoleSelector from '../components/RoleSelector';
 import ModelSelector from '../components/ModelSelector';
 import ChatBox from '../components/ChatBox';
 import RoleModal from '../components/RoleModal';
+import * as roleApi from '../api/roleApi';
 
 interface Role {
-  id?: string;
+  id?: number;
   name: string;
   description: string;
+  userId?: number;
 }
 
 const ChatPage = () => {
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('');
-  const [roles, setRoles] = useState<Role[]>([
-    { id: '1', name: 'Assistant', description: 'Helpful AI assistant' },
-    { id: '2', name: 'Teacher', description: 'Educational instructor' },
-    { id: '3', name: 'Friend', description: 'Casual conversation partner' },
-    { id: '4', name: 'Expert', description: 'Specialized knowledge provider' },
-  ]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingRole, setEditingRole] = useState<Role | null>(null);
+
+  // Load roles on component mount
+  useEffect(() => {
+    loadRoles();
+  }, []);
+
+  const loadRoles = async () => {
+    try {
+      setLoading(true);
+      const fetchedRoles = await roleApi.getAllRoles();
+      setRoles(fetchedRoles);
+    } catch (error) {
+      toast.error('Failed to load roles');
+      console.error('Error loading roles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddRole = () => {
     setEditingRole(null);
@@ -35,30 +52,46 @@ const ChatPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveRole = (roleData: Role) => {
-    if (editingRole) {
-      // Update existing role
-      setRoles(prev => prev.map(role =>
-        role.id === editingRole.id
-          ? { ...role, name: roleData.name, description: roleData.description }
-          : role
-      ));
-    } else {
-      // Add new role
-      const newRole: Role = {
-        id: Date.now().toString(), // Simple ID generation using timestamp as string
-        name: roleData.name,
-        description: roleData.description,
-      };
-      setRoles(prev => [...prev, newRole]);
+  const handleSaveRole = async (roleData: Role) => {
+    try {
+      if (editingRole && editingRole.id) {
+        // Update existing role
+        const updatedRole = await roleApi.updateRole(editingRole.id, {
+          name: roleData.name,
+          description: roleData.description
+        });
+        setRoles(prev => prev.map(role =>
+          role.id === editingRole.id ? updatedRole : role
+        ));
+        toast.success('Role updated successfully!');
+      } else {
+        // Add new role
+        const newRole = await roleApi.createRole({
+          name: roleData.name,
+          description: roleData.description
+        });
+        setRoles(prev => [...prev, newRole]);
+        toast.success('Role created successfully!');
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error('Failed to save role');
+      console.error('Error saving role:', error);
     }
   };
 
-  const handleDeleteRole = (roleId: string) => {
-    setRoles(prev => prev.filter(role => role.id !== roleId));
-    // Clear selection if the deleted role was selected
-    if (selectedRole === roleId) {
-      setSelectedRole('');
+  const handleDeleteRole = async (roleId: number) => {
+    try {
+      await roleApi.deleteRole(roleId);
+      setRoles(prev => prev.filter(role => role.id !== roleId));
+      // Clear selection if the deleted role was selected
+      if (selectedRole === roleId.toString()) {
+        setSelectedRole('');
+      }
+      toast.success('Role deleted successfully!');
+    } catch (error) {
+      toast.error('Failed to delete role');
+      console.error('Error deleting role:', error);
     }
   };
 
@@ -81,12 +114,16 @@ const ChatPage = () => {
             </button>
           </div>
 
-          <RoleSelector
-            roles={roles}
-            selectedRole={selectedRole}
-            onRoleSelect={setSelectedRole}
-            onEditRole={handleEditRole}
-          />
+          {loading ? (
+            <div className="text-center text-gray-400 py-4">Loading roles...</div>
+          ) : (
+            <RoleSelector
+              roles={roles}
+              selectedRole={selectedRole}
+              onRoleSelect={setSelectedRole}
+              onEditRole={handleEditRole}
+            />
+          )}
           <ModelSelector selectedModel={selectedModel} onModelSelect={setSelectedModel} />
         </div>
         <div className="flex-1 p-4 bg-gray-900">

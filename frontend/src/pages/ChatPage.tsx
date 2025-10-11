@@ -14,7 +14,7 @@ interface Role {
 }
 
 const ChatPage = () => {
-  const [selectedRole, setSelectedRole] = useState<number | undefined>(undefined);
+  const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash-lite');
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,9 +85,7 @@ const ChatPage = () => {
       await roleApi.deleteRole(roleId);
       setRoles(prev => prev.filter(role => role.id !== roleId));
       // Clear selection if the deleted role was selected
-      if (selectedRole === roleId) {
-        setSelectedRole(undefined);
-      }
+      setSelectedRoles(prev => prev.filter(id => id !== roleId));
       toast.success('Role deleted successfully!');
     } catch (error) {
       toast.error('Failed to delete role');
@@ -122,8 +120,8 @@ const ChatPage = () => {
           ) : (
             <RoleSelector
               roles={roles}
-              selectedRole={selectedRole}
-              onRoleSelect={setSelectedRole}
+              selectedRoles={selectedRoles}
+              onRolesChange={setSelectedRoles}
               onEditRole={handleEditRole}
             />
           )}
@@ -133,7 +131,7 @@ const ChatPage = () => {
         </div>
       </div>
       <div className="flex-1 flex flex-col min-h-0 bg-gray-900">
-        <ChatBox selectedRole={selectedRole} selectedModel={selectedModel} />
+        <ChatBox selectedRoles={selectedRoles} selectedModel={selectedModel} roles={roles} />
       </div>
       <RoleModal
         isOpen={isModalOpen}

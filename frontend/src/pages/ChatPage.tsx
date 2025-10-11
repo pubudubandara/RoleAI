@@ -21,6 +21,7 @@ const ChatPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Load roles on component mount
   useEffect(() => {
@@ -100,12 +101,21 @@ const ChatPage = () => {
 
   return (
     <div
-      className="w-full flex overflow-hidden min-h-0"
+      className="w-full flex overflow-hidden min-h-0 relative"
       style={{ height: 'calc(100vh - 64px)' }} // assumes navbar height = 64px (h-16)
     >
-      <div className="w-80 bg-gray-900 p-4 border-r border-gray-700 flex flex-col">
+      {/* Toggle button for small screens */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="md:hidden fixed top-18 left-2 z-10 bg-gray-800 text-white p-2 rounded-full shadow-lg hover:bg-gray-700 transition-colors"
+      >
+        {isSidebarOpen ? '<' : '>'}
+      </button>
+
+      {/* Sidebar */}
+      <div className={`w-80 bg-gray-900 p-4 border-r border-gray-700 flex flex-col ${isSidebarOpen ? 'block' : 'hidden'} md:block`}>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-white">Roles</h2>
+            <h2 className="text-lg font-semibold text-white pl-6 md:pl-0">Roles</h2>
           <button
             onClick={handleAddRole}
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
@@ -130,9 +140,12 @@ const ChatPage = () => {
           <ModelSelector selectedModel={selectedModel} onModelSelect={setSelectedModel} />
         </div>
       </div>
+
+      {/* Main chat area */}
       <div className="flex-1 flex flex-col min-h-0 bg-gray-900">
         <ChatBox selectedRoles={selectedRoles} selectedModel={selectedModel} roles={roles} />
       </div>
+
       <RoleModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

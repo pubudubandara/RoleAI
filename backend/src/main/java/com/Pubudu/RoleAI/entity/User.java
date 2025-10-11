@@ -22,6 +22,9 @@ public class User {
 
     private String verificationToken;
 
+    private String resetCode;
+    private java.time.LocalDateTime resetCodeExpiry;
+
     // Default constructor
     public User() {
         this.verificationToken = UUID.randomUUID().toString();
@@ -74,5 +77,21 @@ public class User {
 
     public void setVerificationToken(String verificationToken) {
         this.verificationToken = verificationToken;
+    }
+
+    public String getResetCode() {
+        return resetCode;
+    }
+
+    public void setResetCode(String resetCode) {
+        this.resetCode = resetCode;
+    }
+
+    public java.time.LocalDateTime getResetCodeExpiry() {
+        return resetCodeExpiry;
+    }
+
+    public void setResetCodeExpiry(java.time.LocalDateTime resetCodeExpiry) {
+        this.resetCodeExpiry = resetCodeExpiry;
     }
 }

@@ -139,4 +139,43 @@ public class AuthController {
                     .body(Map.of("error", "Login failed. Please try again."));
         }
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody com.Pubudu.RoleAI.dto.ForgotPasswordRequest request) {
+        try {
+            userService.forgotPassword(request.getEmail());
+            return ResponseEntity.ok(Map.of("message", "Password reset code sent to your email"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to send reset code. Please try again."));
+        }
+    }
+
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<?> verifyResetCode(@RequestBody com.Pubudu.RoleAI.dto.VerifyResetCodeRequest request) {
+        try {
+            userService.verifyResetCode(request.getEmail(), request.getResetCode());
+            return ResponseEntity.ok(Map.of("message", "Reset code verified successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to verify reset code. Please try again."));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody com.Pubudu.RoleAI.dto.ResetPasswordRequest request) {
+        try {
+            userService.resetPassword(request.getEmail(), request.getResetCode(), request.getNewPassword());
+            return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to reset password. Please try again."));
+        }
+    }
 }

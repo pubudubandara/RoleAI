@@ -82,4 +82,83 @@ public class UserService {
         System.out.println("User successfully verified: " + user.getEmail());
         return true;
     }
+
+    public boolean forgotPassword(String email) {
+        System.out.println("Processing forgot password for: " + email);
+
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        User user = userRepository.findByEmail(email.trim().toLowerCase())
+                .orElseThrow(() -> {
+                    System.out.println("Forgot password failed: User not found: " + email);
+                    return new IllegalArgumentException("User not found with this email");
+                });
+
+        // Generate 6-digit reset code
+        String resetCode = String.format("%06d", (int)(Math.random() * 1000000));
+        java.time.LocalDateTime expiry = java.time.LocalDateTime.now().plusMinutes(15); // 15 minutes expiry
+
+        user.setResetCode(resetCode);
+        user.setResetCodeExpiry(expiry);
+        userRepository.save(user);
+
+        System.out.println("Reset code generated for " + user.getEmail() + ": " + resetCode);
+
+        // Send email with reset code
+        emailService.sendEmail(user.getEmail(), "Password Reset Code",
+                "Your password reset code is: " + resetCode + "\n\nThis code will expire in 15 minutes.");
+
+        return true;
+    }
+
+    public boolean verifyResetCode(String email, String resetCode) {
+        System.out.println("Verifying reset code for: " + email);
+
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        if (resetCode == null || resetCode.trim().isEmpty()) {
+            throw new IllegalArgumentException("Reset code is required");
+        }
+
+        User user = userRepository.findByEmail(email.trim().toLowerCase())
+                .orElseThrow(() -> {
+                    System.out.println("Reset code verification failed: User not found: " + email);
+                    return new IllegalArgumentException("User not found");
+                });
+
+        if (user.getResetCode() == null || !user.getResetCode().equals(resetCode.trim())) {
+            System.out.println("Reset code verification failed: Invalid code");
+            throw new IllegalArgumentException("Invalid reset code");
+        }
+
+        if (user.getResetCodeExpiry() == null || user.getResetCodeExpiry().isBefore(java.time.LocalDateTime.now())) {
+            System.out.println("Reset code verification failed: Code expired");
+            throw new IllegalArgumentException("Reset code has expired");
+        }
+
+        System.out.println("Reset code verified successfully for: " + user.getEmail());
+        return true;
+    }
+
+    public boolean resetPassword(String email, String resetCode, String newPassword) {
+        System.out.println("Resetting password for: " + email);
+
+        // First verify the code
+        verifyResetCode(email, resetCode);
+
+        User user = userRepository.findByEmail(email.trim().toLowerCase()).get();
+
+        // Update password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetCode(null); // Clear the reset code
+        user.setResetCodeExpiry(null); // Clear the expiry
+        userRepository.save(user);
+
+        System.out.println("Password reset successfully for: " + user.getEmail());
+        return true;
+    }
 }

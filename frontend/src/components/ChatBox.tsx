@@ -3,7 +3,7 @@ import { sendChatMessage } from '../api/chatApi';
 import type { ChatMessage } from '../api/chatApi';
 
 interface ChatBoxProps {
-  selectedRole: string;
+  selectedRole: number | undefined;
   selectedModel: string;
 }
 
@@ -34,11 +34,21 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
     setIsLoading(true);
 
     try {
-      const response = await sendChatMessage(input, selectedRole, selectedModel);
-      setMessages(prev => [...prev, response]);
+      console.log('ChatBox: Starting chat request with:', { roleId: selectedRole, model: selectedModel, message: input });
+      const aiResponse: ChatMessage = await sendChatMessage(selectedRole, input, selectedModel);
+      console.log('ChatBox: Received AI response:', aiResponse);
+      console.log('ChatBox: Adding AI message to chat with text:', aiResponse.text);
+      setMessages(prev => [...prev, aiResponse]);
       setIsLoading(false);
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error('ChatBox: Failed to send message:', error);
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: 'Error: ' + (error instanceof Error ? error.message : String(error)),
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
       setIsLoading(false);
     }
   };

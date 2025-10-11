@@ -4,8 +4,8 @@ import type { Role } from '../api/roleApi';
 import toast from 'react-hot-toast';
 
 interface RoleSelectorProps {
-  selectedRole: string;
-  onRoleSelect: (role: string) => void;
+  selectedRole: number | undefined;
+  onRoleSelect: (roleId: number | undefined) => void;
   refreshTrigger?: number;
   roles?: Role[];
   onEditRole?: (role: Role) => void;
@@ -62,13 +62,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ selectedRole, onRoleSelect,
         ) : (
           roles.map((role) => (
             <div key={role.id} className={`w-full p-3 rounded-lg border transition-colors ${
-              selectedRole === role.name
+              selectedRole === role.id
                 ? 'bg-blue-900 border-blue-500 text-blue-100'
                 : 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600'
             }`}>
               <div className="flex items-start justify-between gap-2">
                 <button
-                  onClick={() => onRoleSelect(role.name)}
+                  onClick={() => onRoleSelect(role.id)}
                   className="text-left flex-1"
                 >
                   <div className="font-medium">{role.name}</div>

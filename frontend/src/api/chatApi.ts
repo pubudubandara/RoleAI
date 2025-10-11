@@ -12,25 +12,44 @@ export interface ChatMessage {
 }
 
 export interface SendMessageRequest {
+  roleId: number;
   message: string;
-  role: string;
   model: string;
 }
 
 export interface ChatResponse {
-  message: ChatMessage;
+  reply: string;
 }
 
-export const sendChatMessage = async (message: string, role: string, model: string): Promise<ChatMessage> => {
+export const sendChatMessage = async (roleId: number, message: string, model: string): Promise<ChatMessage> => {
   try {
-    const response = await axios.post<ChatResponse>(`${API_BASE_URL}/send`, {
-      message,
-      role,
-      model,
-    });
-    return response.data.message;
+    const requestPayload = { roleId, message, model };
+    console.log('chatApi: Sending request to backend:', requestPayload);
+    
+    const response = await axios.post<ChatResponse>(`${API_BASE_URL}/generate`, requestPayload);
+    
+    console.log('chatApi: Backend response:', response.data);
+    console.log('chatApi: Status:', response.status);
+    
+    const chatMessage = {
+      id: Date.now().toString(),
+      text: response.data.reply,
+      sender: 'ai' as const,
+      timestamp: new Date(),
+    };
+    
+    console.log('chatApi: Returning ChatMessage:', chatMessage);
+    return chatMessage;
   } catch (error) {
-    throw new Error('Failed to send message');
+    console.error('chatApi: Error occurred:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('chatApi: Axios error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
+    }
+    throw new Error('Failed to send message: ' + (error instanceof Error ? error.message : String(error)));
   }
 };
 

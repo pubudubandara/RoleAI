@@ -101,19 +101,22 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="flex-1 flex">
-        <div className="w-80 bg-gray-900 p-4 border-r border-gray-700">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-white">Roles</h2>
-            <button
-              onClick={handleAddRole}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
-            >
-              + Add Role
-            </button>
-          </div>
+    <div
+      className="w-full flex overflow-hidden min-h-0"
+      style={{ height: 'calc(100vh - 64px)' }} // assumes navbar height = 64px (h-16)
+    >
+      <div className="w-80 bg-gray-900 p-4 border-r border-gray-700 flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-white">Roles</h2>
+          <button
+            onClick={handleAddRole}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+          >
+            + Add Role
+          </button>
+        </div>
 
+        <div className="flex-1">
           {loading ? (
             <div className="text-center text-gray-400 py-4">Loading roles...</div>
           ) : (
@@ -124,13 +127,14 @@ const ChatPage = () => {
               onEditRole={handleEditRole}
             />
           )}
+        </div>
+        <div className="mt-4">
           <ModelSelector selectedModel={selectedModel} onModelSelect={setSelectedModel} />
         </div>
-        <div className="flex-1 p-4 bg-gray-900">
-          <ChatBox selectedRole={selectedRole} selectedModel={selectedModel} />
-        </div>
       </div>
-
+      <div className="flex-1 flex flex-col min-h-0 bg-gray-900">
+        <ChatBox selectedRole={selectedRole} selectedModel={selectedModel} />
+      </div>
       <RoleModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

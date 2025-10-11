@@ -6,6 +6,7 @@ interface Model {
 
 const models: Model[] = [
   { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite', description: 'Lightweight, low-latency, cost-effective' },
+  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', description: 'Fast and efficient' },
 ];
 
 interface ModelSelectorProps {

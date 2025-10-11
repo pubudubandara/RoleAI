@@ -7,11 +7,12 @@ import { sendChatMessage } from '../api/chatApi';
 import type { ChatMessage } from '../api/chatApi';
 
 interface ChatBoxProps {
-  selectedRole: number | undefined;
+  selectedRoles: number[];
   selectedModel: string;
+  roles?: { id?: number; name: string }[];
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +25,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
   useEffect(scrollToBottom, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim() || !selectedRole || !selectedModel) return;
+    if (!input.trim() || selectedRoles.length === 0 || !selectedModel) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -37,24 +38,30 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
     setInput('');
     setIsLoading(true);
 
-    try {
-      console.log('ChatBox: Starting chat request with:', { roleId: selectedRole, model: selectedModel, message: input });
-      const aiResponse: ChatMessage = await sendChatMessage(selectedRole, input, selectedModel);
-      console.log('ChatBox: Received AI response:', aiResponse);
-      console.log('ChatBox: Adding AI message to chat with text:', aiResponse.text);
-      setMessages(prev => [...prev, aiResponse]);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('ChatBox: Failed to send message:', error);
-      const errorMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        text: 'Error: ' + (error instanceof Error ? error.message : String(error)),
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      setIsLoading(false);
+    // helper to get role name
+    const getRoleName = (rid: number) => roles?.find(r => r.id === rid)?.name || `Role ${rid}`;
+
+    const roleIds = selectedRoles.slice(0, 3); // enforce max 3
+
+    for (const rid of roleIds) {
+      try {
+        console.log('ChatBox: Sending for role:', { roleId: rid, model: selectedModel, message: input });
+        const aiResponse: ChatMessage = await sendChatMessage(rid, input, selectedModel);
+        // Attach role name so it renders in header
+        (aiResponse as any).role = getRoleName(rid);
+        setMessages(prev => [...prev, aiResponse]);
+      } catch (error) {
+        console.error('ChatBox: Failed to send message for role', rid, error);
+        const errorMessage: ChatMessage = {
+          id: (Date.now() + 1 + rid).toString(),
+          text: `Error for ${getRoleName(rid)}: ` + (error instanceof Error ? error.message : String(error)),
+          sender: 'ai',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
     }
+    setIsLoading(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -69,7 +76,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="text-center text-gray-400 mt-8">
-            Select a role and model, then start chatting!
+            Select up to 3 roles and a model, then start chatting!
           </div>
         ) : (
           messages.map((message) => (
@@ -81,6 +88,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
                     : 'bg-gray-700 text-white'
                 }`}
               >
+                {message.sender === 'ai' && (message as any).role && (
+                  <div className="text-xs text-gray-300 mb-2 font-medium opacity-80">
+                    {(message as any).role}
+                  </div>
+                )}
                 <div className="text-sm prose prose-invert max-w-none">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
@@ -112,11 +124,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
             placeholder="Type your message..."
             className="flex-1 p-2 border border-gray-600 rounded-lg bg-gray-700 text-white resize-none"
             rows={3}
-            disabled={!selectedRole || !selectedModel}
+            disabled={selectedRoles.length === 0 || !selectedModel}
           />
           <button
             onClick={sendMessage}
-            disabled={!input.trim() || isLoading || !selectedRole || !selectedModel}
+            disabled={!input.trim() || isLoading || selectedRoles.length === 0 || !selectedModel}
             className="w-10 h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-full transition-colors flex items-center justify-center"
           >
             <svg className="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">

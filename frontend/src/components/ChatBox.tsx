@@ -82,7 +82,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles }
           messages.map((message) => (
             <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                className={`max-w-sm lg:max-w-3xl px-4 py-2 rounded-lg ${
                   message.sender === 'user'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-700 text-white'

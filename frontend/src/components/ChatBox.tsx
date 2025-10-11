@@ -1,4 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import 'highlight.js/styles/github-dark.css';
 import { sendChatMessage } from '../api/chatApi';
 import type { ChatMessage } from '../api/chatApi';
 
@@ -77,7 +81,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRole, selectedModel }) => {
                     : 'bg-gray-700 text-white'
                 }`}
               >
-                <p className="text-sm">{message.text}</p>
+                <div className="text-sm prose prose-invert max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
+                  >
+                    {message.text}
+                  </ReactMarkdown>
+                </div>
                 <p className="text-xs opacity-70 mt-1">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>

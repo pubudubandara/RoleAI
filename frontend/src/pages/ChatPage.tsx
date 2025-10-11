@@ -14,8 +14,8 @@ interface Role {
 }
 
 const ChatPage = () => {
-  const [selectedRole, setSelectedRole] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState<number | undefined>(undefined);
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash-lite');
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,8 +85,8 @@ const ChatPage = () => {
       await roleApi.deleteRole(roleId);
       setRoles(prev => prev.filter(role => role.id !== roleId));
       // Clear selection if the deleted role was selected
-      if (selectedRole === roleId.toString()) {
-        setSelectedRole('');
+      if (selectedRole === roleId) {
+        setSelectedRole(undefined);
       }
       toast.success('Role deleted successfully!');
     } catch (error) {

@@ -37,11 +37,30 @@ public class ChatService {
     @Autowired
     private PineconeService pineconeService;
 
-    public String generateReply(RoleDTO role, String userMessage, String model) {
+    @Autowired
+    private ModelConfigService modelConfigService;
+
+    public String generateReply(RoleDTO role, String userMessage, String model, Long modelConfigId) {
         // TEMPORARY: Enable this for testing without API key issues
-        if (geminiApiKey == null || geminiApiKey.isEmpty() || "your_gemini_api_key_here".equals(geminiApiKey)) {
+        String apiKeyToUse = geminiApiKey;
+        String modelToUse = model;
+        if (modelConfigId != null) {
+            try {
+                var opt = modelConfigService.get(modelConfigId);
+                if (opt.isPresent()) {
+                    var mc = opt.get();
+                    apiKeyToUse = modelConfigService.getApiKeyPlain(mc);
+                    if (mc.getModelId() != null && !mc.getModelId().isBlank()) {
+                        modelToUse = mc.getModelId();
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to load model config {}: {}", modelConfigId, e.getMessage());
+            }
+        }
+        if (apiKeyToUse == null || apiKeyToUse.isEmpty() || "your_gemini_api_key_here".equals(apiKeyToUse)) {
             logger.warn("Using mock response - Gemini API key not configured");
-            return "Mock response from " + role.getName() + ": " + userMessage + " (Configure gemini.api.key for real responses)";
+            return "Mock response from " + role.getName() + ": " + userMessage + " (Configure API key or add a Model in settings for real responses)";
         }
         
         try {
@@ -84,9 +103,9 @@ public class ChatService {
                     ? primaryBase.replace("v1beta/models", "v1/models")
                     : primaryBase.replace("v1/models", "v1beta/models");
 
-            String baseModel = model;
-            String withLatest = model != null && model.endsWith("-latest") ? model : model + "-latest";
-            String withoutLatest = model != null && model.endsWith("-latest") ? model.substring(0, model.length() - 7) : model;
+            String baseModel = modelToUse;
+            String withLatest = modelToUse != null && modelToUse.endsWith("-latest") ? modelToUse : modelToUse + "-latest";
+            String withoutLatest = modelToUse != null && modelToUse.endsWith("-latest") ? modelToUse.substring(0, modelToUse.length() - 7) : modelToUse;
 
             java.util.LinkedHashSet<String> modelVariants = new java.util.LinkedHashSet<>();
             modelVariants.add(baseModel);
@@ -105,7 +124,7 @@ public class ChatService {
                 for (String mv : modelVariants) {
                     String url = UriComponentsBuilder
                             .fromUriString(b + "/" + mv + ":generateContent")
-                            .queryParam("key", geminiApiKey)
+                            .queryParam("key", apiKeyToUse)
                             .toUriString();
                     logger.info("Calling Gemini URL: {}", maskApiKey(url));
                     try {

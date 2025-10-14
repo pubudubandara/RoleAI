@@ -10,9 +10,10 @@ interface ChatBoxProps {
   selectedRoles: number[];
   selectedModel: string;
   roles?: { id?: number; name: string }[];
+  selectedModelConfigId?: number;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, selectedModelConfigId }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +26,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles }
   useEffect(scrollToBottom, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim() || selectedRoles.length === 0 || !selectedModel) return;
+    if (!input.trim() || selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -45,8 +46,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles }
 
     for (const rid of roleIds) {
       try {
-        console.log('ChatBox: Sending for role:', { roleId: rid, model: selectedModel, message: input });
-        const aiResponse: ChatMessage = await sendChatMessage(rid, input, selectedModel);
+  console.log('ChatBox: Sending for role:', { roleId: rid, model: selectedModel, message: input, modelConfigId: selectedModelConfigId });
+  const aiResponse: ChatMessage = await sendChatMessage(rid, input, selectedModel, selectedModelConfigId);
         // Attach role name so it renders in header
         (aiResponse as any).role = getRoleName(rid);
         setMessages(prev => [...prev, aiResponse]);
@@ -124,11 +125,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles }
             placeholder="Type your message..."
             className="flex-1 p-2 border border-gray-600 rounded-lg bg-gray-700 text-white resize-none"
             rows={3}
-            disabled={selectedRoles.length === 0 || !selectedModel}
+            disabled={selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId}
           />
           <button
             onClick={sendMessage}
-            disabled={!input.trim() || isLoading || selectedRoles.length === 0 || !selectedModel}
+            disabled={!input.trim() || isLoading || selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId}
             className="w-10 h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-full transition-colors flex items-center justify-center"
           >
             <svg className="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">

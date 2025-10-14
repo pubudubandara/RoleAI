@@ -32,9 +32,13 @@ public class ChatController {
             Long roleId = Long.valueOf(request.get("roleId").toString());
             String message = (String) request.get("message");
             String model = (String) request.get("model");
+            Long modelConfigId = null;
+            if (request.get("modelConfigId") != null) {
+                modelConfigId = Long.valueOf(request.get("modelConfigId").toString());
+            }
 
-            if (roleId == null || message == null || model == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "roleId, message, and model are required"));
+            if (roleId == null || message == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "roleId and message are required"));
             }
 
         String msgPreview = message == null ? "" : (message.length() > 120 ? message.substring(0, 120) + "..." : message);
@@ -47,7 +51,7 @@ public class ChatController {
             }
 
             RoleDTO role = roleOpt.get();
-            String reply = chatService.generateReply(role, message, model);
+            String reply = chatService.generateReply(role, message, model, modelConfigId);
 
             logger.info("Successfully generated reply");
             return ResponseEntity.ok(Map.of("reply", reply));

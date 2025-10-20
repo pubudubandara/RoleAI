@@ -16,16 +16,18 @@ export interface SendMessageRequest {
   message: string;
   model: string;
   modelConfigId?: number;
+  sessionId?: string;
 }
 
 export interface ChatResponse {
   reply: string;
 }
 
-export const sendChatMessage = async (roleId: number, message: string, model: string, modelConfigId?: number): Promise<ChatMessage> => {
+export const sendChatMessage = async (roleId: number, message: string, model: string, modelConfigId?: number, sessionId?: string): Promise<ChatMessage> => {
   try {
     const requestPayload: SendMessageRequest = { roleId, message, model };
     if (modelConfigId) requestPayload.modelConfigId = modelConfigId;
+    if (sessionId) requestPayload.sessionId = sessionId;
     console.log('chatApi: Sending request to backend:', requestPayload);
     
   const response = await axios.post<ChatResponse>(`${API_BASE_URL}/generate`, requestPayload);

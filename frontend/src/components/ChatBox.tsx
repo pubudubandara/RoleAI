@@ -63,10 +63,16 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
 
   const sendMessage = async () => {
     if (!input.trim() || selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId) return;
+    // Require a sessionId so messages persist under a chat
+    if (!sessionId) {
+      console.warn('No sessionId present; cannot persist messages.');
+      return;
+    }
 
+    const prompt = input; // capture before clearing
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      text: input,
+      text: prompt,
       sender: 'user',
       timestamp: new Date(),
     };
@@ -76,14 +82,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
     setIsLoading(true);
 
     // Persist user message if we have a session
-    if (sessionId) {
-      try {
-        await chatSessionApi.addMessage(sessionId, { sender: 'user', content: userMessage.text });
-        // Inform parent so it can refresh sidebar (for title auto-generation on first prompt)
-        onAfterUserMessage?.();
-      } catch (e) {
-        console.error('Failed to persist user message', e);
-      }
+    try {
+      await chatSessionApi.addMessage(sessionId, { sender: 'user', content: userMessage.text });
+      // Inform parent so it can refresh sidebar (for title auto-generation on first prompt)
+      onAfterUserMessage?.();
+    } catch (e) {
+      console.error('Failed to persist user message', e);
     }
 
     // helper to get role name
@@ -93,8 +97,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
 
     for (const rid of roleIds) {
       try {
-  console.log('ChatBox: Sending for role:', { roleId: rid, model: selectedModel, message: input, modelConfigId: selectedModelConfigId });
-  const aiResponse: ChatMessage = await sendChatMessage(rid, input, selectedModel, selectedModelConfigId, sessionId ?? undefined);
+  console.log('ChatBox: Sending for role:', { roleId: rid, model: selectedModel, message: prompt, modelConfigId: selectedModelConfigId, sessionId });
+  const aiResponse: ChatMessage = await sendChatMessage(rid, prompt, selectedModel, selectedModelConfigId, sessionId);
         // Attach role name so it renders in header
         (aiResponse as any).role = getRoleName(rid);
         setMessages(prev => [...prev, aiResponse]);

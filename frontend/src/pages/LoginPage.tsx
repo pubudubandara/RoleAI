@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import * as chatSessionApi from '../api/chatSessionApi';
 import { useAuth } from "../context/AuthContext";
 
 const LoginPage = () => {
@@ -12,7 +13,19 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       await login(email, password);
-      navigate("/chat");
+      // After login, redirect to /chat/{chatId}
+      try {
+        const sessions = await chatSessionApi.listSessions();
+        if (sessions.length > 0) {
+          navigate(`/chat/${sessions[0].id}`);
+        } else {
+          const created = await chatSessionApi.createSession();
+          navigate(`/chat/${created.id}`);
+        }
+      } catch (e) {
+        // Fallback
+        navigate('/chat');
+      }
     } catch (error) {
       // Handle login error, e.g., show a message
       console.error("Login failed:", error);

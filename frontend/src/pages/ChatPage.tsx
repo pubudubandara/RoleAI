@@ -34,6 +34,8 @@ const ChatPage = () => {
   const [sessions, setSessions] = useState<chatSessionApi.ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [showDeleteChatConfirm, setShowDeleteChatConfirm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<chatSessionApi.ChatSession | null>(null);
 
   // Load roles on component mount
   useEffect(() => {
@@ -291,22 +293,7 @@ const ChatPage = () => {
               <button onClick={() => { setCurrentSessionId(s.id); navigate(`/chat/${s.id}`); }} className="flex-1 text-left truncate pr-2">{s.title || `Chat ${s.id}`}</button>
               <button
                 title="Delete chat"
-                onClick={async () => {
-                  if (!confirm('Delete this chat?')) return;
-                  await chatSessionApi.deleteSession(s.id);
-                  const next = sessions.filter(x => x.id !== s.id);
-                  setSessions(next);
-                  if (currentSessionId === s.id) {
-                    if (next.length > 0) {
-                      navigate(`/chat/${next[0].id}`);
-                    } else {
-                      const created = await chatSessionApi.createSession();
-                      setSessions([created]);
-                      setCurrentSessionId(created.id);
-                      navigate(`/chat/${created.id}`);
-                    }
-                  }
-                }}
+                onClick={() => { setDeleteTarget(s); setShowDeleteChatConfirm(true); }}
                 className="text-xs px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 border border-gray-600"
               >
                 <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -317,6 +304,56 @@ const ChatPage = () => {
           ))}
         </div>
       </div>
+
+      {/* Delete Chat Confirmation Modal */}
+      {showDeleteChatConfirm && deleteTarget && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white mb-4">Confirm Delete</h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete the chat "{deleteTarget.title || deleteTarget.id}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowDeleteChatConfirm(false); setDeleteTarget(null); }}
+                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await chatSessionApi.deleteSession(deleteTarget.id);
+                    const next = sessions.filter(x => x.id !== deleteTarget.id);
+                    setSessions(next);
+                    // If we deleted the current chat, navigate appropriately
+                    if (currentSessionId === deleteTarget.id) {
+                      if (next.length > 0) {
+                        setCurrentSessionId(next[0].id);
+                        navigate(`/chat/${next[0].id}`);
+                      } else {
+                        const created = await chatSessionApi.createSession();
+                        setSessions([created]);
+                        setCurrentSessionId(created.id);
+                        navigate(`/chat/${created.id}`);
+                      }
+                    }
+                  } catch (e) {
+                    console.error('Failed to delete chat', e);
+                    toast.error('Failed to delete chat');
+                  } finally {
+                    setShowDeleteChatConfirm(false);
+                    setDeleteTarget(null);
+                  }
+                }}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <RoleModal
         isOpen={isModalOpen}

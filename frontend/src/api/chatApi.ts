@@ -30,7 +30,15 @@ export const sendChatMessage = async (roleId: number, message: string, model: st
     if (sessionId) requestPayload.sessionId = sessionId;
     console.log('chatApi: Sending request to backend:', requestPayload);
     
-  const response = await axios.post<ChatResponse>(`${API_BASE_URL}/generate`, requestPayload);
+    // Attach auth header
+    const token = localStorage.getItem('token');
+    const response = await axios.post<ChatResponse>(
+      `${API_BASE_URL}/generate`,
+      requestPayload,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      }
+    );
     
     console.log('chatApi: Backend response:', response.data);
     console.log('chatApi: Status:', response.status);

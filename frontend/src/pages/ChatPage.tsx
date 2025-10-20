@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import RoleSelector from '../components/RoleSelector';
 import ModelModal from '../components/ModelModal';
@@ -6,6 +7,7 @@ import * as modelApi from '../api/modelApi';
 import ChatBox from '../components/ChatBox';
 import RoleModal from '../components/RoleModal';
 import * as roleApi from '../api/roleApi';
+import * as chatSessionApi from '../api/chatSessionApi';
 
 interface Role {
   id?: number;
@@ -15,6 +17,8 @@ interface Role {
 }
 
 const ChatPage = () => {
+  const navigate = useNavigate();
+  const { chatId } = useParams<{ chatId: string }>();
   const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,11 +31,49 @@ const ChatPage = () => {
   const [editingModel, setEditingModel] = useState<modelApi.ModelConfig | null>(null);
   const [models, setModels] = useState<modelApi.ModelConfig[]>([]);
   const [selectedModelConfigId, setSelectedModelConfigId] = useState<number | undefined>(undefined);
+  const [sessions, setSessions] = useState<chatSessionApi.ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   // Load roles on component mount
   useEffect(() => {
     loadRoles();
     loadModels();
+    // load sessions and handle routing
+    (async () => {
+      try {
+        const list = await chatSessionApi.listSessions();
+        setSessions(list);
+        if (chatId) {
+          const exists = list.find(s => s.id === chatId);
+          if (exists) {
+            setCurrentSessionId(chatId);
+          } else {
+            // invalid id in URL, navigate to first or create new
+            if (list.length > 0) {
+              navigate(`/chat/${list[0].id}`, { replace: true });
+            } else {
+              const created = await chatSessionApi.createSession();
+              setSessions([created]);
+              setCurrentSessionId(created.id);
+              navigate(`/chat/${created.id}`, { replace: true });
+            }
+          }
+        } else {
+          // No chatId in URL
+          if (list.length > 0) {
+            navigate(`/chat/${list[0].id}`, { replace: true });
+          } else {
+            const created = await chatSessionApi.createSession();
+            setSessions([created]);
+            setCurrentSessionId(created.id);
+            navigate(`/chat/${created.id}`, { replace: true });
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load sessions', e);
+      }
+    })();
   }, []);
 
   const loadRoles = async () => {
@@ -198,7 +240,77 @@ const ChatPage = () => {
 
       {/* Main chat area */}
       <div className="flex-1 flex flex-col min-h-0 bg-gray-900">
-        <ChatBox selectedRoles={selectedRoles} selectedModel="gemini-2.5-pro" roles={roles} selectedModelConfigId={selectedModelConfigId} />
+        <ChatBox 
+          selectedRoles={selectedRoles} 
+          selectedModel="gemini-2.5-pro" 
+          roles={roles} 
+          selectedModelConfigId={selectedModelConfigId} 
+          sessionId={currentSessionId ?? undefined}
+          onAfterUserMessage={async () => {
+            try {
+              const list = await chatSessionApi.listSessions();
+              setSessions(list);
+            } catch {}
+          }}
+        />
+      </div>
+
+      {/* Floating History toggle button */}
+      <button
+        onClick={() => setIsHistoryOpen(prev => !prev)}
+        className="fixed right-3 bottom-35 z-10 bg-gray-800 text-white px-3 py-2 rounded-full shadow-lg hover:bg-gray-700 transition-colors"
+      >
+        History
+      </button>
+
+      {/* Right Sidebar - Chat History */}
+      <div className={`fixed top-16 right-0 h-[calc(100vh-64px)] w-72 bg-gray-900 border-l border-gray-700 transform transition-transform duration-200 ${isHistoryOpen ? 'translate-x-0' : 'translate-x-full'} overflow-y-auto`}> 
+        <div className="p-3 border-b border-gray-700 flex items-center justify-between">
+          <div className="font-semibold">Chat History</div>
+          <button
+            onClick={async () => {
+              const created = await chatSessionApi.createSession();
+              setSessions(prev => [created, ...prev]);
+              setCurrentSessionId(created.id);
+              navigate(`/chat/${created.id}`);
+            }}
+            className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-700"
+          >
+            + New
+          </button>
+        </div>
+        <div className="p-2 space-y-1">
+          {sessions.length === 0 && (
+            <div className="text-xs text-gray-400 p-3">No chats yet.</div>
+          )}
+          {sessions.map(s => (
+            <div key={s.id} className={`flex items-center justify-between px-3 py-2 rounded cursor-pointer ${currentSessionId === s.id ? 'bg-gray-700' : 'hover:bg-gray-800'}`}>
+              <button onClick={() => { setCurrentSessionId(s.id); navigate(`/chat/${s.id}`); }} className="flex-1 text-left truncate pr-2">{s.title || `Chat ${s.id}`}</button>
+              <button
+                title="Delete chat"
+                onClick={async () => {
+                  if (!confirm('Delete this chat?')) return;
+                  await chatSessionApi.deleteSession(s.id);
+                  const next = sessions.filter(x => x.id !== s.id);
+                  setSessions(next);
+                  if (currentSessionId === s.id) {
+                    if (next.length > 0) {
+                      navigate(`/chat/${next[0].id}`);
+                    } else {
+                      const created = await chatSessionApi.createSession();
+                      setSessions([created]);
+                      setCurrentSessionId(created.id);
+                      navigate(`/chat/${created.id}`);
+                    }
+                  }
+                }}
+                className="text-xs px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 border border-gray-600"
+              >
+                Del
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
       <RoleModal

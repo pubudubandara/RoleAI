@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +38,7 @@ public class ChatSessionService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    @Transactional
     public ChatSession createSession() {
         User user = getCurrentUser();
         ChatSession s = new ChatSession();
@@ -58,6 +60,7 @@ public class ChatSessionService {
         return messageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
     }
 
+    @Transactional
     public ChatMessage addMessage(String sessionId, String sender, String content, Long roleId) {
         ChatSession s = ensureOwned(sessionId);
         User user = getCurrentUser();
@@ -81,6 +84,7 @@ public class ChatSessionService {
         return saved;
     }
 
+    @Transactional
     public void deleteSession(String sessionId) {
         ensureOwned(sessionId);
         messageRepository.deleteBySessionId(sessionId);

@@ -22,8 +22,8 @@ public class ChatMessage {
     @Column(name = "sender", length = 16, nullable = false)
     private String sender; // "user" or "ai"
 
-    @Lob
-    @Column(name = "content", nullable = false)
+    // Store as TEXT to avoid PostgreSQL Large Object (OID) behavior that requires non-autocommit transactions
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "created_at", nullable = false)

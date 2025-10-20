@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 import { sendChatMessage } from '../api/chatApi';
+import * as chatSessionApi from '../api/chatSessionApi';
 import type { ChatMessage } from '../api/chatApi';
 
 interface ChatBoxProps {
@@ -11,9 +12,11 @@ interface ChatBoxProps {
   selectedModel: string;
   roles?: { id?: number; name: string }[];
   selectedModelConfigId?: number;
+  sessionId?: string;
+  onAfterUserMessage?: () => Promise<void> | void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, selectedModelConfigId }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, selectedModelConfigId, sessionId, onAfterUserMessage }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +27,39 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  // Load messages when session changes
+  useEffect(() => {
+    const load = async () => {
+      if (!sessionId) {
+        setMessages([]);
+        return;
+      }
+      try {
+        const items = await chatSessionApi.getMessages(sessionId);
+        const mapped: ChatMessage[] = items.map((m) => {
+          const isAi = m.sender === 'ai';
+          const base: ChatMessage = {
+            id: String(m.id),
+            text: m.content,
+            sender: isAi ? 'ai' : 'user',
+            timestamp: new Date(m.createdAt),
+          };
+          if (isAi && m.roleId) {
+            const roleName = roles?.find(r => r.id === m.roleId)?.name;
+            (base as any).role = roleName || `Role ${m.roleId}`;
+          }
+          return base;
+        });
+        setMessages(mapped);
+      } catch (e) {
+        console.error('Failed to load messages for session', sessionId, e);
+        setMessages([]);
+      }
+    };
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
 
   const sendMessage = async () => {
     if (!input.trim() || selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId) return;
@@ -39,6 +75,17 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
     setInput('');
     setIsLoading(true);
 
+    // Persist user message if we have a session
+    if (sessionId) {
+      try {
+        await chatSessionApi.addMessage(sessionId, { sender: 'user', content: userMessage.text });
+        // Inform parent so it can refresh sidebar (for title auto-generation on first prompt)
+        onAfterUserMessage?.();
+      } catch (e) {
+        console.error('Failed to persist user message', e);
+      }
+    }
+
     // helper to get role name
     const getRoleName = (rid: number) => roles?.find(r => r.id === rid)?.name || `Role ${rid}`;
 
@@ -47,7 +94,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
     for (const rid of roleIds) {
       try {
   console.log('ChatBox: Sending for role:', { roleId: rid, model: selectedModel, message: input, modelConfigId: selectedModelConfigId });
-  const aiResponse: ChatMessage = await sendChatMessage(rid, input, selectedModel, selectedModelConfigId);
+  const aiResponse: ChatMessage = await sendChatMessage(rid, input, selectedModel, selectedModelConfigId, sessionId ?? undefined);
         // Attach role name so it renders in header
         (aiResponse as any).role = getRoleName(rid);
         setMessages(prev => [...prev, aiResponse]);

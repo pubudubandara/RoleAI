@@ -2,6 +2,7 @@ package com.Pubudu.RoleAI.controller;
 
 import com.Pubudu.RoleAI.dto.RoleDTO;
 import com.Pubudu.RoleAI.service.ChatService;
+import com.Pubudu.RoleAI.service.ChatSessionService;
 import com.Pubudu.RoleAI.service.RoleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,9 @@ public class ChatController {
     @Autowired
     private RoleService roleService;
 
+    @Autowired
+    private ChatSessionService chatSessionService;
+
     @PostMapping("/generate")
     public ResponseEntity<?> generateReply(@RequestBody Map<String, Object> request) {
         try {
@@ -35,6 +39,10 @@ public class ChatController {
             Long modelConfigId = null;
             if (request.get("modelConfigId") != null) {
                 modelConfigId = Long.valueOf(request.get("modelConfigId").toString());
+            }
+            String sessionId = null;
+            if (request.get("sessionId") != null) {
+                sessionId = request.get("sessionId").toString();
             }
 
             if (roleId == null || message == null) {
@@ -52,6 +60,15 @@ public class ChatController {
 
             RoleDTO role = roleOpt.get();
             String reply = chatService.generateReply(role, message, model, modelConfigId);
+
+            // Persist AI reply if sessionId provided
+            if (sessionId != null) {
+                try {
+                    chatSessionService.addMessage(sessionId, "ai", reply, role.getId());
+                } catch (Exception ex) {
+                    logger.warn("Failed to persist AI reply to session {}: {}", sessionId, ex.getMessage());
+                }
+            }
 
             logger.info("Successfully generated reply");
             return ResponseEntity.ok(Map.of("reply", reply));

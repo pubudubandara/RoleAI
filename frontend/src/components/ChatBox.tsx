@@ -145,12 +145,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
                     {(message as any).role}
                   </div>
                 )}
-                <div className="text-sm prose prose-invert max-w-none">
+                <div className="text-sm prose prose-invert max-w-none whitespace-pre-wrap break-words leading-tight">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeHighlight]}
                   >
-                    {message.text}
+                    {message.text
+                      .replace(/\r\n/g, '\n')
+                      .replace(/\n{3,}/g, '\n\n')}
                   </ReactMarkdown>
                 </div>
                 <p className="text-xs opacity-70 mt-1">

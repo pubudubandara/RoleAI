@@ -20,25 +20,40 @@ export interface ChatMessageDto {
 }
 
 export async function listSessions(): Promise<ChatSession[]> {
-  const res = await axios.get<ChatSession[]>(`${API_BASE_URL}`);
+  const token = localStorage.getItem('token');
+  const res = await axios.get<ChatSession[]>(`${API_BASE_URL}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
   return res.data;
 }
 
 export async function createSession(): Promise<ChatSession> {
-  const res = await axios.post(`${API_BASE_URL}/create`);
+  const token = localStorage.getItem('token');
+  const res = await axios.post(`${API_BASE_URL}/create`, undefined, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
   return res.data as ChatSession;
 }
 
 export async function getMessages(chatId: string): Promise<ChatMessageDto[]> {
-  const res = await axios.get<ChatMessageDto[]>(`${API_BASE_URL}/${chatId}/messages`);
+  const token = localStorage.getItem('token');
+  const res = await axios.get<ChatMessageDto[]>(`${API_BASE_URL}/${chatId}/messages`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
   return res.data;
 }
 
 export async function addMessage(chatId: string, payload: { sender: 'user' | 'ai'; content: string; roleId?: number }): Promise<ChatMessageDto> {
-  const res = await axios.post<ChatMessageDto>(`${API_BASE_URL}/${chatId}/messages`, payload);
+  const token = localStorage.getItem('token');
+  const res = await axios.post<ChatMessageDto>(`${API_BASE_URL}/${chatId}/messages`, payload, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
   return res.data;
 }
 
 export async function deleteSession(chatId: string): Promise<void> {
-  await axios.delete(`${API_BASE_URL}/${chatId}`);
+  const token = localStorage.getItem('token');
+  await axios.delete(`${API_BASE_URL}/${chatId}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
 }

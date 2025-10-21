@@ -22,10 +22,10 @@ public class ChatService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
 
-    @Value("${gemini.api.key}")
+    @Value("${gemini.api.key:}") // default to empty if not provided
     private String geminiApiKey;
 
-    @Value("${gemini.api.url}")
+    @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/}")
     private String geminiApiUrl;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -43,7 +43,7 @@ public class ChatService {
     public String generateReply(RoleDTO role, String userMessage, String model, Long modelConfigId) {
         // TEMPORARY: Enable this for testing without API key issues
         String apiKeyToUse = geminiApiKey;
-        String modelToUse = model;
+        String modelToUse = (model == null || model.isBlank()) ? "gemini-2.5-pro" : model;
         if (modelConfigId != null) {
             try {
                 var opt = modelConfigService.get(modelConfigId);
@@ -53,6 +53,9 @@ public class ChatService {
                     if (mc.getModelId() != null && !mc.getModelId().isBlank()) {
                         modelToUse = mc.getModelId();
                     }
+                    logger.info("Using ModelConfig {} -> provider={} model={} apiKeyPrefix={}",
+                        mc.getId(), mc.getProvider(), modelToUse,
+                        apiKeyToUse != null && apiKeyToUse.length() > 6 ? apiKeyToUse.substring(0,6) + "***" : "null/empty");
                 }
             } catch (Exception e) {
                 logger.warn("Failed to load model config {}: {}", modelConfigId, e.getMessage());
@@ -179,8 +182,8 @@ public class ChatService {
                 
                 if (status == 403) {
                     logger.error("GEMINI API KEY ERROR: 403 Forbidden - Check your API key permissions and billing");
-                    logger.error("Current API key starts with: {}", geminiApiKey != null && geminiApiKey.length() > 10 
-                        ? geminiApiKey.substring(0, 10) + "..." : "null/empty");
+                    logger.error("Current API key starts with: {}", apiKeyToUse != null && apiKeyToUse.length() > 10 
+                        ? apiKeyToUse.substring(0, 10) + "..." : "null/empty");
                 }
             } else {
                 logger.error("Error calling Gemini API", e);

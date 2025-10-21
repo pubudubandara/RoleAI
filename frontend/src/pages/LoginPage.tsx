@@ -7,11 +7,13 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       await login(email, password);
       // After login, redirect to /chat/{chatId}
       try {
@@ -29,6 +31,8 @@ const LoginPage = () => {
     } catch (error) {
       // Handle login error, e.g., show a message
       console.error("Login failed:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -45,6 +49,7 @@ const LoginPage = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full mb-4 p-2 rounded bg-gray-700"
+          disabled={isLoading}
         />
         <input
           type="password"
@@ -52,9 +57,16 @@ const LoginPage = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full mb-4 p-2 rounded bg-gray-700"
+          disabled={isLoading}
         />
-        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
-          Login
+        <button disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white py-2 rounded flex items-center justify-center gap-2">
+          {isLoading && (
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          )}
+          {isLoading ? 'Logging in...' : 'Login'}
         </button>
         <div className="text-center mt-4">
           <Link to="/forgot-password" className="text-blue-400 hover:text-blue-300 text-sm">

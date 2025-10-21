@@ -6,7 +6,7 @@ import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignUpPage';
+import SignUpPage from './pages/SignUpPageNew';
 import ChatPage from './pages/ChatPage';
 import VerifySuccessPage from './pages/VerifySuccessPage';
 import VerifyErrorPage from './pages/VerifyErrorPage';

@@ -19,6 +19,7 @@ interface RoleModalProps {
 const RoleModal = ({ isOpen, onClose, onSave, onDelete, role, mode }: RoleModalProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (role && mode === 'edit') {
@@ -53,10 +54,21 @@ const RoleModal = ({ isOpen, onClose, onSave, onDelete, role, mode }: RoleModalP
   };
 
   const handleDelete = () => {
-    if (role?.id && onDelete) {
-      onDelete(role.id);
-      onClose();
+    if (mode === "edit" && role) {
+      setShowDeleteConfirm(true);
     }
+  };
+
+  const confirmDelete = () => {
+    if (onDelete && role?.id) {
+      onDelete(role.id);
+    }
+    setShowDeleteConfirm(false);
+    onClose();
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
   };
 
   if (!isOpen) return null;
@@ -136,6 +148,31 @@ const RoleModal = ({ isOpen, onClose, onSave, onDelete, role, mode }: RoleModalP
             </button>
           </div>
         </form>
+
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
+              <h3 className="text-lg font-semibold text-white mb-4">Confirm Delete</h3>
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to delete the role "{role?.name}"? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelDelete}
+                  className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -84,4 +84,15 @@ public class JwtUtil {
             return true;
         }
     }
+
+    // Placeholder: tokens currently store email as subject; if you add userId claim, update accordingly
+    public Long extractUserId(String token) {
+        try {
+            getEmailFromToken(token);
+            // If you later include userId claim, parse it here. For now return null to mark global configs.
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

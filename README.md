@@ -92,23 +92,6 @@ Frontend dev server runs at http://localhost:5173 by default.
 - API keys are encrypted at rest using AES‑GCM
 - Choose the saved model to use for chat; the backend uses either the global key or the selected model’s key
 
-## Common issues and troubleshooting
-
-- PostgreSQL Large Object error (CLOB/LOB):
-  - Chat messages are stored in a `TEXT` column to avoid LOB auto‑commit issues.
-  - If you previously created tables with a LOB column, migrate with:
-
-    ```sql
-    ALTER TABLE chat_messages_v2
-      ALTER COLUMN content TYPE TEXT;
-    ```
-
-- CORS/auth issues from frontend to backend:
-  - Ensure the frontend sends the `Authorization: Bearer <token>` header. The project’s API clients were updated to include it.
-
-- Session/message not persisting under chat ID:
-  - Frontend passes `sessionId` to the backend; user messages are persisted first, then AI replies are stored with the same `sessionId`.
-
 ## Development notes
 
 - Monorepo with separate backend/frontend; run both during development

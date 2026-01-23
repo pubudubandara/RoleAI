@@ -125,47 +125,49 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
-          <div className="text-center text-slate-400 mt-8">
-            Select up to 3 roles and a model, then start chatting!
-          </div>
-        ) : (
-          messages.map((message) => (
-            <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-              <div
-                className={`max-w-sm lg:max-w-3xl px-4 py-3 rounded-2xl shadow-lg ${
-                  message.sender === 'user'
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
-                    : 'bg-slate-800/90 text-white border border-slate-700'
-                }`}
-              >
-                {message.sender === 'ai' && (message as any).role && (
-                  <div className="text-xs text-slate-300 mb-2 font-medium opacity-80">
-                    {(message as any).role}
-                  </div>
-                )}
-                <div className="text-base prose prose-invert max-w-none whitespace-pre-wrap break-words leading-tight">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeHighlight]}
-                  >
-                    {message.text}
-                  </ReactMarkdown>
-                </div>
-                <p className="text-xs opacity-70 mt-1">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              </div>
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="max-w-4xl mx-auto space-y-4">
+          {messages.length === 0 ? (
+            <div className="text-center text-slate-400 mt-8">
+              Select up to 3 roles and a model, then start chatting!
             </div>
-          ))
-        )}
-        {isLoading && (
-          <div className="text-center text-slate-400">
-            AI is thinking...
-          </div>
-        )}
-        <div ref={messagesEndRef} />
+          ) : (
+            messages.map((message) => (
+              <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
+                <div
+                  className={`max-w-sm lg:max-w-3xl px-4 py-3 rounded-2xl shadow-lg ${
+                    message.sender === 'user'
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                      : 'bg-slate-800/90 text-white border border-slate-700'
+                  }`}
+                >
+                  {message.sender === 'ai' && (message as any).role && (
+                    <div className="text-xs text-slate-300 mb-2 font-medium opacity-80">
+                      {(message as any).role}
+                    </div>
+                  )}
+                  <div className="text-base prose prose-invert max-w-none whitespace-pre-wrap break-words leading-tight">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                    >
+                      {message.text}
+                    </ReactMarkdown>
+                  </div>
+                  <p className="text-xs opacity-70 mt-1">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+          {isLoading && (
+            <div className="text-center text-slate-400">
+              AI is thinking...
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
       <div className="p-3 border-t border-slate-800 bg-slate-950/30">
         <div className="max-w-4xl mx-auto">

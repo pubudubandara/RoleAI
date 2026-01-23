@@ -127,21 +127,21 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <div className="text-center text-gray-400 mt-8">
+          <div className="text-center text-slate-400 mt-8">
             Select up to 3 roles and a model, then start chatting!
           </div>
         ) : (
           messages.map((message) => (
             <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
               <div
-                className={`max-w-sm lg:max-w-3xl px-4 py-2 rounded-lg ${
+                className={`max-w-sm lg:max-w-3xl px-4 py-3 rounded-2xl shadow-lg ${
                   message.sender === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-700 text-white'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                    : 'bg-slate-800/90 text-white border border-slate-700'
                 }`}
               >
                 {message.sender === 'ai' && (message as any).role && (
-                  <div className="text-xs text-gray-300 mb-2 font-medium opacity-80">
+                  <div className="text-xs text-slate-300 mb-2 font-medium opacity-80">
                     {(message as any).role}
                   </div>
                 )}
@@ -161,32 +161,34 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
           ))
         )}
         {isLoading && (
-          <div className="text-center text-gray-400">
+          <div className="text-center text-slate-400">
             AI is thinking...
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 border-t border-gray-700 ">
-        <div className="flex space-x-2">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="flex-1 p-2 border border-gray-600 rounded-lg bg-gray-700 text-white resize-none"
-            rows={3}
-            disabled={selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId}
-          />
-          <button
-            onClick={sendMessage}
-            disabled={!input.trim() || isLoading || selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId}
-            className="w-10 h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-full transition-colors flex items-center justify-center"
-          >
-            <svg className="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-          </button>
+      <div className="p-3 border-t border-slate-800 bg-slate-950/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-3 items-center">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              className="flex-1 h-12 px-4 border border-slate-700 rounded-xl bg-slate-800/50 text-white placeholder-slate-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-slate-800"
+              disabled={selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!input.trim() || isLoading || selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId}
+              className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 disabled:from-slate-700 disabled:to-slate-700 disabled:opacity-50 text-white rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 disabled:shadow-none flex items-center justify-center flex-shrink-0"
+            >
+              <svg className="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>

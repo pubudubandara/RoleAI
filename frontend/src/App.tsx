@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Toaster } from 'react-hot-toast';
-import Navbar from './components/Navbar';
+// import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
@@ -20,7 +20,7 @@ function App() {
       <AuthProvider>
         <Router>
           <div className="w-full h-full bg-gray-900 text-gray-100 flex flex-col">
-            <Navbar />
+            {/* <Navbar /> */}
             <div className="flex-1">
               <Routes>
                 <Route path="/" element={<LandingPage />} />

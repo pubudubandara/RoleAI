@@ -16,14 +16,6 @@ import java.util.Arrays;
 @Service
 public class EmbeddingService {
 
-    // Commented out for mock implementation
-    // private final RestTemplate restTemplate;
-    // private final ObjectMapper objectMapper;
-    
-    // You'll need to set your OpenAI API key here or in application.properties
-    // private static final String OPENAI_API_KEY = "your-openai-api-key";
-    // private static final String OPENAI_EMBEDDINGS_URL = "https://api.openai.com/v1/embeddings";
-
     public EmbeddingService() {
         // this.restTemplate = new RestTemplate();
         // this.objectMapper = new ObjectMapper();
@@ -64,50 +56,7 @@ public class EmbeddingService {
         return Arrays.toString(embedding).replaceAll("[\\[\\]\\s]", "");
     }
 
-    /**
-     * Generate actual embedding using OpenAI API (commented out for now)
-     * Uncomment and configure when ready to use real embeddings
-     */
-    /*
-    private String generateRealEmbedding(String text) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + OPENAI_API_KEY);
-            headers.set("Content-Type", "application/json");
 
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("input", text);
-            requestBody.put("model", "text-embedding-ada-002");
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-            
-            ResponseEntity<String> response = restTemplate.exchange(
-                OPENAI_EMBEDDINGS_URL,
-                HttpMethod.POST,
-                entity,
-                String.class
-            );
-
-            JsonNode jsonResponse = objectMapper.readTree(response.getBody());
-            JsonNode embeddingArray = jsonResponse.get("data").get(0).get("embedding");
-            
-            // Convert JsonNode array to comma-separated string
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < embeddingArray.size(); i++) {
-                if (i > 0) sb.append(",");
-                sb.append(embeddingArray.get(i).asDouble());
-            }
-            
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate embedding", e);
-        }
-    }
-    */
-
-    /**
-     * Calculate cosine similarity between two embeddings
-     */
     public double calculateSimilarity(String embedding1, String embedding2) {
         try {
             double[] vec1 = parseEmbedding(embedding1);

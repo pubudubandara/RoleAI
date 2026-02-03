@@ -92,50 +92,72 @@ const VerifyResetCodePage = () => {
   };
 
   return (
-    <div className="w-full h-full flex justify-center items-center p-6 bg-gray-900">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">Verify Reset Code</h2>
-        <p className="text-gray-400 text-sm mb-6 text-center">
-          Enter the 6-digit code sent to {email}
-        </p>
+    <div className="w-full min-h-screen flex justify-center items-center p-6 bg-slate-950 relative overflow-hidden">
+      {/* Ambient glow effects */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+      
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.05) 1px, transparent 0)`,
+        backgroundSize: '40px 40px'
+      }}></div>
 
-        <input
-          type="text"
-          placeholder="Enter 6-digit code"
-          value={resetCode}
-          onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-          className="w-full mb-4 p-2 rounded bg-gray-700 text-white text-center text-lg font-mono"
-          maxLength={6}
-          required
-          disabled={isLoading}
-        />
-
-        <button
-          type="submit"
-          disabled={isLoading || resetCode.length !== 6}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 rounded mb-4"
-        >
-          {isLoading ? "Verifying..." : "Verify Code"}
-        </button>
-
-        <div className="text-center space-y-2">
-          <button
-            type="button"
-            onClick={handleResendCode}
-            disabled={isLoading}
-            className="text-blue-400 hover:text-blue-300 text-sm disabled:text-gray-500"
-          >
-            Didn't receive code? Resend
-          </button>
-          <br />
-          <Link to="/forgot-password" className="text-blue-400 hover:text-blue-300 text-sm">
-            Use different email
-          </Link>
+      <div className="relative z-10 w-full max-w-md transition-all duration-700 opacity-100 translate-y-0">
+        <div className="text-center mb-8">
+          <h2 className="mt-6 text-3xl font-bold text-white">Verify Reset Code</h2>
+          <p className="mt-2 text-slate-400">
+            Enter the 6-digit code sent to {email}
+          </p>
         </div>
-      </form>
+
+        <form
+          onSubmit={handleSubmit}
+          className="bg-slate-900/50 backdrop-blur-xl p-8 rounded-2xl border border-slate-800 shadow-2xl"
+        >
+          <div className="space-y-5">
+            <div>
+              <label htmlFor="resetCode" className="block text-sm font-medium text-slate-300 mb-2">
+                Reset Code
+              </label>
+              <input
+                id="resetCode"
+                type="text"
+                placeholder="000000"
+                value={resetCode}
+                onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 text-center text-lg font-mono tracking-widest transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-slate-800"
+                maxLength={6}
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading || resetCode.length !== 6}
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Verifying..." : "Verify Code"}
+            </button>
+
+            <div className="text-center space-y-2 pt-2">
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={isLoading}
+                className="text-blue-400 hover:text-blue-300 text-sm disabled:text-slate-500 transition-colors"
+              >
+                Didn't receive code? Resend
+              </button>
+              <br />
+              <Link to="/forgot-password" className="text-blue-400 hover:text-blue-300 text-sm transition-colors">
+                Use different email
+              </Link>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

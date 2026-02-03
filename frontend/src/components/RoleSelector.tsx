@@ -55,7 +55,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ selectedRoles, onRolesChang
     return (
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-3 text-white">Select Role</h3>
-        <div className="text-center text-gray-400 py-4">
+        <div className="text-center text-slate-400 py-4">
           Loading roles...
         </div>
       </div>
@@ -67,7 +67,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ selectedRoles, onRolesChang
       <h3 className="text-lg font-semibold mb-3 text-white">Select Roles</h3>
       <div className="space-y-2">
         {roles.length === 0 ? (
-          <div className="text-center text-gray-400 py-4">
+          <div className="text-center text-slate-400 py-4">
             No roles available. Create your first role!
           </div>
         ) : (
@@ -75,10 +75,10 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ selectedRoles, onRolesChang
             const isSelected = selectedRoles.includes(role.id!);
             const disabled = !isSelected && selectedRoles.length >= maxSelect;
             return (
-              <div key={role.id} className={`w-full p-3 rounded-lg border transition-colors ${
+              <div key={role.id} className={`w-full p-3 rounded-xl border transition-all duration-200 ${
                 isSelected
-                  ? 'bg-blue-900 border-blue-500 text-blue-100'
-                  : `bg-gray-700 border-gray-600 text-white ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-600'}`
+                  ? 'bg-blue-500/10 border-blue-500/50 text-white ring-1 ring-blue-500/30'
+                  : `bg-slate-800/50 border-slate-700 text-white ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-800 hover:border-slate-600'}`
               }`}>
                 <div className="flex items-start justify-between gap-2">
                   <button
@@ -88,13 +88,13 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ selectedRoles, onRolesChang
                   >
                     <div>
                       <div className="font-medium">{role.name}</div>
-                      <div className="text-sm text-gray-300">{role.description}</div>
+                      <div className="text-sm text-slate-300">{role.description}</div>
                     </div>
                   </button>
                 {onEditRole && (
                   <button
                     onClick={() => onEditRole(role)}
-                    className="text-sm px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 border border-gray-600"
+                    className="text-sm px-2 py-1 rounded-lg bg-slate-700/50 hover:bg-slate-700 border border-slate-600 transition-colors"
                     title="Edit role"
                   >
                     Edit

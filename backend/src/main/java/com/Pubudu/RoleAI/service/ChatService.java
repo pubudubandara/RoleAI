@@ -43,7 +43,7 @@ public class ChatService {
     public String generateReply(RoleDTO role, String userMessage, String model, Long modelConfigId) {
         // TEMPORARY: Enable this for testing without API key issues
         String apiKeyToUse = geminiApiKey;
-        String modelToUse = (model == null || model.isBlank()) ? "gemini-2.5-pro" : model;
+        String modelToUse = (model == null || model.isBlank()) ? "gemini-2.5-flash" : model;
         if (modelConfigId != null) {
             try {
                 var opt = modelConfigService.get(modelConfigId);

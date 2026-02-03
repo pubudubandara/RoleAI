@@ -9,14 +9,13 @@ import type { ChatMessage } from '../api/chatApi';
 
 interface ChatBoxProps {
   selectedRoles: number[];
-  selectedModel: string;
   roles?: { id?: number; name: string }[];
   selectedModelConfigId?: number;
   sessionId?: string;
   onAfterUserMessage?: () => Promise<void> | void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, selectedModelConfigId, sessionId, onAfterUserMessage }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, roles, selectedModelConfigId, sessionId, onAfterUserMessage }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -62,7 +61,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
   }, [sessionId]);
 
   const sendMessage = async () => {
-    if (!input.trim() || selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId) return;
+    if (!input.trim() || selectedRoles.length === 0 || !selectedModelConfigId) return;
     // Require a sessionId so messages persist under a chat
     if (!sessionId) {
       console.warn('No sessionId present; cannot persist messages.');
@@ -97,8 +96,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
 
     for (const rid of roleIds) {
       try {
-  console.log('ChatBox: Sending for role:', { roleId: rid, model: selectedModel, message: prompt, modelConfigId: selectedModelConfigId, sessionId });
-  const aiResponse: ChatMessage = await sendChatMessage(rid, prompt, selectedModel, selectedModelConfigId, sessionId);
+  console.log('ChatBox: Sending for role:', { roleId: rid, message: prompt, modelConfigId: selectedModelConfigId, sessionId });
+  const aiResponse: ChatMessage = await sendChatMessage(rid, prompt, " ", selectedModelConfigId, sessionId);
         // Attach role name so it renders in header
         (aiResponse as any).role = getRoleName(rid);
         setMessages(prev => [...prev, aiResponse]);
@@ -129,7 +128,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.length === 0 ? (
             <div className="text-center text-slate-400 mt-8">
-              Select up to 3 roles and a model, then start chatting!
+              Select up to 3 roles and add a model configuration, then start chatting!
             </div>
           ) : (
             messages.map((message) => (
@@ -179,11 +178,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ selectedRoles, selectedModel, roles, 
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
               className="flex-1 h-12 px-4 border border-slate-700 rounded-xl bg-slate-800/50 text-white placeholder-slate-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-slate-800"
-              disabled={selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId}
+              disabled={selectedRoles.length === 0 || !selectedModelConfigId}
             />
             <button
               onClick={sendMessage}
-              disabled={!input.trim() || isLoading || selectedRoles.length === 0 || !selectedModel || !selectedModelConfigId}
+              disabled={!input.trim() || isLoading || selectedRoles.length === 0 || !selectedModelConfigId}
               className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 disabled:from-slate-700 disabled:to-slate-700 disabled:opacity-50 text-white rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 disabled:shadow-none flex items-center justify-center flex-shrink-0"
             >
               <svg className="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">

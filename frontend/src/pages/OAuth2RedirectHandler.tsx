@@ -30,14 +30,16 @@ const OAuth2RedirectHandler = () => {
                 
                 const payload = JSON.parse(jsonPayload);
                 const email = payload.sub; // Email is in the 'sub' claim
+                const userId = payload.userId; // User ID from custom claim
+                const fullName = payload.fullName; // Full name from custom claim
                 
-                console.log("OAuth2 Redirect - User email:", email);
+                console.log("OAuth2 Redirect - Decoded payload:", { email, userId, fullName });
                 
-                // Create user object (minimal info, you can fetch full user details if needed)
+                // Create user object with data from JWT
                 const user = {
-                    id: 0, // Will be set by backend if needed
+                    id: userId || 0,
                     email: email,
-                    fullName: email // You can update this by calling a user info endpoint
+                    fullName: fullName || email
                 };
                 
                 // Use AuthContext to set auth state - this updates both localStorage AND context state

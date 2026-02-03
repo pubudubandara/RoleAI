@@ -269,7 +269,6 @@ const ChatPage = () => {
         </div>
         <ChatBox 
           selectedRoles={selectedRoles} 
-          selectedModel="gemini-2.5-pro" 
           roles={roles} 
           selectedModelConfigId={selectedModelConfigId} 
           sessionId={currentSessionId ?? undefined}

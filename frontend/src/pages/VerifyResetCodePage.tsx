@@ -26,7 +26,8 @@ const VerifyResetCodePage = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/auth/verify-reset-code", {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+      const response = await fetch(`${backendUrl}/api/auth/verify-reset-code`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -15,6 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (fullName: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  setAuthFromToken: (token: string, userData: User) => void;
   isLoading: boolean;
 }
 
@@ -69,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = JSON.parse(storedUser);
           console.log('Parsed user data:', userData);
           
-          if (userData && userData.id && userData.email) {
+          if (userData && typeof userData.id === 'number' && userData.email) {
             setUser(userData);
             console.log('User authenticated from storage');
           } else {
@@ -121,11 +122,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.location.replace('/');
   };
 
+  const setAuthFromToken = (token: string, userData: User) => {
+    // Store token and user data
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    
+    // Set authorization header
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    // Update state immediately
+    setUser(userData);
+    
+    console.log('Auth set from OAuth2 token:', userData);
+  };
+
   const value: AuthContextType = {
     user,
     login,
     signup,
     logout,
+    setAuthFromToken,
     isLoading,
   };
 

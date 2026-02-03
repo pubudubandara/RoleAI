@@ -13,6 +13,7 @@ import VerifyErrorPage from './pages/VerifyErrorPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import VerifyResetCodePage from './pages/VerifyResetCodePage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/verify-success" element={<VerifySuccessPage />} />
                 <Route path="/verify-error" element={<VerifyErrorPage />} />
+                <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
                 <Route path="/chat" element={
                   <ProtectedRoute>
                     <ChatPage />

@@ -41,29 +41,39 @@ public class ChatService {
     private ModelConfigService modelConfigService;
 
     public String generateReply(RoleDTO role, String userMessage, String model, Long modelConfigId) {
-        // TEMPORARY: Enable this for testing without API key issues
-        String apiKeyToUse = geminiApiKey;
-        String modelToUse = (model == null || model.isBlank()) ? "gemini-2.5-pro" : model;
-        if (modelConfigId != null) {
-            try {
-                var opt = modelConfigService.get(modelConfigId);
-                if (opt.isPresent()) {
-                    var mc = opt.get();
-                    apiKeyToUse = modelConfigService.getApiKeyPlain(mc);
-                    if (mc.getModelId() != null && !mc.getModelId().isBlank()) {
-                        modelToUse = mc.getModelId();
-                    }
-                    logger.info("Using ModelConfig {} -> provider={} model={} apiKeyPrefix={}",
-                        mc.getId(), mc.getProvider(), modelToUse,
-                        apiKeyToUse != null && apiKeyToUse.length() > 6 ? apiKeyToUse.substring(0,6) + "***" : "null/empty");
-                }
-            } catch (Exception e) {
-                logger.warn("Failed to load model config {}: {}", modelConfigId, e.getMessage());
-            }
+        // Require modelConfigId - API key must come from database
+        if (modelConfigId == null) {
+            logger.error("No modelConfigId provided - API key must be configured in database");
+            return "Error: No model configuration selected. Please add a Model with API key in settings.";
         }
-        if (apiKeyToUse == null || apiKeyToUse.isEmpty() || "your_gemini_api_key_here".equals(apiKeyToUse)) {
-            logger.warn("Using mock response - Gemini API key not configured");
-            return "Mock response from " + role.getName() + ": " + userMessage + " (Configure API key or add a Model in settings for real responses)";
+
+        String apiKeyToUse = null;
+        String modelToUse = (model == null || model.isBlank()) ? "gemini-2.5-pro" : model;
+        
+        try {
+            var opt = modelConfigService.get(modelConfigId);
+            if (opt.isEmpty()) {
+                logger.error("ModelConfig {} not found in database", modelConfigId);
+                return "Error: Model configuration not found. Please check your settings.";
+            }
+            
+            var mc = opt.get();
+            apiKeyToUse = modelConfigService.getApiKeyPlain(mc);
+            if (mc.getModelId() != null && !mc.getModelId().isBlank()) {
+                modelToUse = mc.getModelId();
+            }
+            logger.info("Using ModelConfig {} -> provider={} model={} apiKeyPrefix={}",
+                mc.getId(), mc.getProvider(), modelToUse,
+                apiKeyToUse != null && apiKeyToUse.length() > 6 ? apiKeyToUse.substring(0,6) + "***" : "null/empty");
+                
+        } catch (Exception e) {
+            logger.error("Failed to load model config {}: {}", modelConfigId, e.getMessage(), e);
+            return "Error: Failed to load model configuration: " + e.getMessage();
+        }
+        
+        if (apiKeyToUse == null || apiKeyToUse.isEmpty()) {
+            logger.error("API key is null or empty for ModelConfig {}", modelConfigId);
+            return "Error: API key not configured for this model. Please update the model settings.";
         }
         
         try {

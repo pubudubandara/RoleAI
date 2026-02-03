@@ -62,7 +62,10 @@ public class ModelConfigController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> update(@RequestHeader(value = "Authorization", required = false) String auth,
+                                    @PathVariable Long id,
+                                    @RequestBody Map<String, String> body) {
+        Long uid = userIdFromAuth(auth);
         ModelConfig mc = modelConfigService.update(
                 id,
                 body.get("provider"),

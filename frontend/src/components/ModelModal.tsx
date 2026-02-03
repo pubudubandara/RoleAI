@@ -11,9 +11,8 @@ interface ModelModalProps {
 }
 
 const GEMINI_MODELS = [
-  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
+  { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview' },
   { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
-  { id: 'gemini-2.5-flash-preview', name: 'Gemini 2.5 Flash Preview' },
 ];
 
 const ModelModal: React.FC<ModelModalProps> = ({ isOpen, onClose, onSave, onDelete, model, mode }) => {
@@ -21,6 +20,7 @@ const ModelModal: React.FC<ModelModalProps> = ({ isOpen, onClose, onSave, onDele
   const [modelId, setModelId] = useState(GEMINI_MODELS[0].id);
   const [apiKey, setApiKey] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showApiKeyHelp, setShowApiKeyHelp] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -79,6 +79,58 @@ const ModelModal: React.FC<ModelModalProps> = ({ isOpen, onClose, onSave, onDele
           <h2 className="text-2xl font-bold text-white">{mode === 'add' ? 'Add Model' : 'Edit Model'}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-white text-2xl leading-none transition-colors">×</button>
         </div>
+
+        {/* API Key Help Section */}
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() => setShowApiKeyHelp(!showApiKeyHelp)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-blue-500/10 border border-blue-500/30 rounded-xl hover:bg-blue-500/20 transition-all duration-200"
+          >
+            <span className="text-blue-400 font-medium flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              How to find your Gemini API Key?
+            </span>
+            <svg 
+              className={`w-5 h-5 text-blue-400 transition-transform duration-200 ${showApiKeyHelp ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {showApiKeyHelp && (
+            <div className="mt-3 px-4 py-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+              <ol className="space-y-3 text-slate-300 text-sm list-decimal list-inside">
+                <li>
+                  Visit{' '}
+                  <a 
+                    href="https://aistudio.google.com/app/apikey" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 underline"
+                  >
+                    Google AI Studio
+                  </a>
+                </li>
+                <li>Sign in with your Google account</li>
+                <li>Click on <span className="font-semibold text-white">"Get API Key"</span> or <span className="font-semibold text-white">"Create API Key"</span></li>
+                <li>Select or create a Google Cloud project</li>
+                <li>Copy the generated API key and paste it below</li>
+              </ol>
+              <div className="mt-3 pt-3 border-t border-slate-700">
+                <p className="text-xs text-slate-400">
+                  💡 <span className="font-semibold">Note:</span> Keep your API key secure and never share it publicly. Free tier has usage limits.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Display Name (optional)</label>
@@ -104,13 +156,17 @@ const ModelModal: React.FC<ModelModalProps> = ({ isOpen, onClose, onSave, onDele
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">API Key {mode === 'edit' && <span className="text-slate-400">(leave blank to keep existing)</span>}</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              API Key 
+              {mode === 'edit' && <span className="text-green-400 ml-2">✓ Entered</span>}
+              {mode === 'edit' && <span className="text-slate-400 text-xs ml-2">(enter new key to update)</span>}
+            </label>
             <input
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-slate-800"
-              placeholder="Enter your Gemini API Key"
+              placeholder={mode === 'edit' ? '••••••••••••••••' : 'Enter your Gemini API Key'}
               required={mode === 'add'}
             />
           </div>

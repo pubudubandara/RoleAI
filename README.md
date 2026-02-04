@@ -28,6 +28,35 @@ frontend/       # React 19 + TypeScript + Vite + Tailwind CSS
 
 ## Backend setup (Spring Boot)
 
+### Option 1: Docker (Recommended)
+
+1) Copy the environment file and configure secrets:
+
+```powershell
+cd backend
+cp .env.example .env
+# Edit .env with your actual values (JWT_SECRET, ENCRYPTION_SECRET, API keys, etc.)
+```
+
+2) Run with Docker Compose:
+
+```powershell
+docker-compose up -d
+```
+
+This will:
+- Start PostgreSQL in a container
+- Build and run the Spring Boot backend
+- Create necessary volumes for database persistence
+
+Backend will be available at http://localhost:8080
+
+To view logs: `docker-compose logs -f backend`  
+To stop: `docker-compose down`  
+To rebuild after code changes: `docker-compose up -d --build`
+
+### Option 2: Local Development
+
 1) Create a PostgreSQL database and user (example):
 
 ```sql

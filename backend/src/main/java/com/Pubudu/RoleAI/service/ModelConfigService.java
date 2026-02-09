@@ -28,7 +28,7 @@ public class ModelConfigService {
     }
 
     public List<ModelConfig> listForUser(Long userId) {
-        return repository.findByUserIdOrUserIdIsNull(userId);
+        return repository.findByUserId(userId);
     }
 
     public Optional<ModelConfig> get(Long id) {

@@ -41,6 +41,10 @@ public class ModelConfigController {
     @GetMapping
     public ResponseEntity<?> list(@RequestHeader(value = "Authorization", required = false) String auth) {
         Long uid = userIdFromAuth(auth);
+        if (uid == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
         List<ModelConfig> list = modelConfigService.listForUser(uid);
         return ResponseEntity.ok(list.stream().map(this::sanitize).collect(Collectors.toList()));
     }
@@ -49,6 +53,10 @@ public class ModelConfigController {
     public ResponseEntity<?> create(@RequestHeader(value = "Authorization", required = false) String auth,
                                     @RequestBody Map<String, String> body) {
         Long uid = userIdFromAuth(auth);
+        if (uid == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
         String provider = body.getOrDefault("provider", "GEMINI");
         String modelId = body.get("modelId");
         String label = body.get("label");

@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/roles")
-@CrossOrigin(origins = "http://localhost:5173")
 public class RoleController {
 
     private static final Logger logger = LoggerFactory.getLogger(RoleController.class);

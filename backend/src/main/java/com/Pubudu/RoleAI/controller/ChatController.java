@@ -16,7 +16,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/chat")
-@CrossOrigin(origins = "http://localhost:5173")
 public class ChatController {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);

@@ -7,6 +7,7 @@ import com.Pubudu.RoleAI.repository.UserRepository;
 import com.Pubudu.RoleAI.service.UserService;
 import com.Pubudu.RoleAI.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,9 @@ public class AuthController {
     @Autowired private JwtUtil jwtUtil;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private UserRepository userRepository;
+    
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
@@ -82,12 +86,12 @@ public class AuthController {
             userService.verifyUser(token);
             // Redirect to frontend verification success page
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "http://localhost:5173/verify-success")
+                    .header("Location", frontendUrl + "/verify-success")
                     .build();
         } catch (Exception e) {
             // Redirect to frontend verification error page
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "http://localhost:5173/verify-error")
+                    .header("Location", frontendUrl + "/verify-error")
                     .build();
         }
     }

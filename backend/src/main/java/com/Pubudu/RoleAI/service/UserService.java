@@ -4,6 +4,7 @@ import com.Pubudu.RoleAI.dto.SignupRequest;
 import com.Pubudu.RoleAI.entity.User;
 import com.Pubudu.RoleAI.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,9 @@ public class UserService {
     @Autowired private UserRepository userRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private EmailService emailService;
+    
+    @Value("${backend.url}")
+    private String backendUrl;
 
     public User register(SignupRequest request) {
         // Validate input
@@ -47,7 +51,7 @@ public class UserService {
         userRepository.save(user);
         System.out.println("User registered: " + user.getEmail() + ", enabled: " + user.isEnabled() + ", token: " + user.getVerificationToken());
 
-        String link = "http://localhost:8080/api/auth/verify?token=" + user.getVerificationToken();
+        String link = backendUrl + "/api/auth/verify?token=" + user.getVerificationToken();
         System.out.println("Verification link: " + link);
         emailService.sendEmail(user.getEmail(), "Verify your email",
                 "Click here to verify: " + link);

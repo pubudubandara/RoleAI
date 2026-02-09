@@ -39,7 +39,7 @@ jobs:
           script: |
             # Restart the service in Supervisor
             # Note: If you are 'ubuntu' user, you might need 'sudo'
-            sudo supervisorctl restart RoleAI
+            /www/server/panel/pyenv/bin/supervisorctl restart RoleAI
 
   deploy-frontend:
     runs-on: ubuntu-latest

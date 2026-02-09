@@ -65,6 +65,19 @@ public class ModelConfigController {
                                     @PathVariable Long id,
                                     @RequestBody Map<String, String> body) {
         Long uid = userIdFromAuth(auth);
+        if (uid == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
+        // Check if the model belongs to the user
+        ModelConfig existing = modelConfigService.get(id).orElse(null);
+        if (existing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (existing.getUserId() != null && !existing.getUserId().equals(uid)) {
+            return ResponseEntity.status(403).body(Map.of("error", "You can only update your own models"));
+        }
+        
         ModelConfig mc = modelConfigService.update(
                 id,
                 body.get("provider"),
@@ -76,7 +89,22 @@ public class ModelConfigController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@RequestHeader(value = "Authorization", required = false) String auth,
+                                   @PathVariable Long id) {
+        Long uid = userIdFromAuth(auth);
+        if (uid == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        
+        // Check if the model belongs to the user
+        ModelConfig existing = modelConfigService.get(id).orElse(null);
+        if (existing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (existing.getUserId() != null && !existing.getUserId().equals(uid)) {
+            return ResponseEntity.status(403).body(Map.of("error", "You can only delete your own models"));
+        }
+        
         modelConfigService.delete(id);
         return ResponseEntity.ok(Map.of("deleted", true));
     }

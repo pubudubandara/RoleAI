@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/chat';
+const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api/chat`;
 
 export interface ChatMessage {
   id: string;

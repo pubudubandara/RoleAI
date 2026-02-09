@@ -26,7 +26,7 @@ const VerifyResetCodePage = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/auth/verify-reset-code", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-reset-code`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +68,7 @@ const VerifyResetCodePage = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/auth/forgot-password", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

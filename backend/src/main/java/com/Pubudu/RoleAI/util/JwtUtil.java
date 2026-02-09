@@ -26,6 +26,7 @@ public class JwtUtil {
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
+                .claim("userId", user.getId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -85,11 +86,19 @@ public class JwtUtil {
         }
     }
 
-    // Placeholder: tokens currently store email as subject; if you add userId claim, update accordingly
     public Long extractUserId(String token) {
         try {
-            getEmailFromToken(token);
-            // If you later include userId claim, parse it here. For now return null to mark global configs.
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            Object userIdObj = claims.get("userId");
+            if (userIdObj instanceof Integer) {
+                return ((Integer) userIdObj).longValue();
+            } else if (userIdObj instanceof Long) {
+                return (Long) userIdObj;
+            }
             return null;
         } catch (Exception e) {
             return null;

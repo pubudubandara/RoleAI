@@ -11,21 +11,34 @@ export interface ModelConfig {
   createdAt?: string;
 }
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const listModels = async (): Promise<ModelConfig[]> => {
-  const res = await axios.get<ModelConfig[]>(API_BASE_URL);
+  const res = await axios.get<ModelConfig[]>(API_BASE_URL, {
+    headers: getAuthHeaders()
+  });
   return res.data;
 };
 
 export const createModel = async (payload: { provider: string; modelId: string; label?: string; apiKey: string; }): Promise<ModelConfig> => {
-  const res = await axios.post<ModelConfig>(API_BASE_URL, payload);
+  const res = await axios.post<ModelConfig>(API_BASE_URL, payload, {
+    headers: getAuthHeaders()
+  });
   return res.data;
 };
 
 export const updateModel = async (id: number, payload: Partial<{ provider: string; modelId: string; label: string; apiKey: string; }>): Promise<ModelConfig> => {
-  const res = await axios.patch<ModelConfig>(`${API_BASE_URL}/${id}`, payload);
+  const res = await axios.patch<ModelConfig>(`${API_BASE_URL}/${id}`, payload, {
+    headers: getAuthHeaders()
+  });
   return res.data;
 };
 
 export const deleteModel = async (id: number): Promise<void> => {
-  await axios.delete(`${API_BASE_URL}/${id}`);
+  await axios.delete(`${API_BASE_URL}/${id}`, {
+    headers: getAuthHeaders()
+  });
 };

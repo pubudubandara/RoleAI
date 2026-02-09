@@ -33,7 +33,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
+        // Only auto-logout if we have a user session and get 401
+        // This prevents logout loops on initial page load
+        if (error.response?.status === 401 && user !== null) {
           // Token is invalid or expired - clear auth data and redirect
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -50,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       axios.interceptors.response.eject(interceptor);
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const initializeAuth = async () => {

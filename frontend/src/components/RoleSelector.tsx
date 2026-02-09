@@ -83,18 +83,16 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ selectedRoles, onRolesChang
                 <div className="flex items-start justify-between gap-2">
                   <button
                     onClick={() => !disabled && toggleRole(role.id!)}
-                    className="text-left flex-1 flex items-start gap-2"
+                    className="text-left flex-1 min-w-0"
                     disabled={disabled}
                   >
-                    <div>
-                      <div className="font-medium">{role.name}</div>
-                      <div className="text-sm text-slate-300">{role.description}</div>
-                    </div>
+                    <div className="font-medium truncate">{role.name}</div>
+                    <div className="text-sm text-slate-300 truncate">{role.description}</div>
                   </button>
                 {onEditRole && (
                   <button
                     onClick={() => onEditRole(role)}
-                    className="text-sm px-2 py-1 rounded-lg bg-slate-700/50 hover:bg-slate-700 border border-slate-600 transition-colors"
+                    className="text-sm px-2 py-1 rounded-lg bg-slate-700/50 hover:bg-slate-700 border border-slate-600 transition-colors flex-shrink-0"
                     title="Edit role"
                   >
                     Edit

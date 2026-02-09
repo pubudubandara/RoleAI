@@ -29,8 +29,8 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
                 : 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600'
             }`}
           >
-            <div className="font-medium">{model.name}</div>
-            <div className="text-sm text-gray-400">{model.description}</div>
+            <div className="font-medium truncate">{model.name}</div>
+            <div className="text-sm text-gray-400 truncate">{model.description}</div>
           </button>
         ))}
       </div>
